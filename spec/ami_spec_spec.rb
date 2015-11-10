@@ -2,12 +2,10 @@ require 'spec_helper'
 
 describe AmiSpec do
   let(:amis) { {'web_server' => 'ami-1234abcd', 'db_server' => 'ami-1234abcd'} }
-  let(:specs) { '/tmp/foobar' }
-  subject { described_class.run(amis, specs) }
+  subject { described_class.run(amis: amis, specs: '/tmp/foobar', subnet_id: 'subnet-1234abcd', key_name: 'key') }
 
   before do
-    allow(AmiSpec::AwsInstance).to receive(:start).and_return(double)
-    allow(AmiSpec::AwsInstance).to receive(:start).and_return(double)
+    allow(AmiSpec::AwsInstance).to receive(:start).and_return(double(terminate: true))
     allow(AmiSpec::ServerSpec).to receive(:run).and_return(double(result: test_result))
   end
 
@@ -15,8 +13,8 @@ describe AmiSpec do
     let(:test_result) { true }
 
     it 'calls aws instance for each ami' do
-      expect(AmiSpec::AwsInstance).to receive(:start).with(tag: 'web_server', ami: 'ami-1234abcd').and_return(double)
-      expect(AmiSpec::AwsInstance).to receive(:start).with(tag: 'db_server', ami: 'ami-1234abcd').and_return(double)
+      expect(AmiSpec::AwsInstance).to receive(:start).with(hash_including(role: 'web_server'))
+      expect(AmiSpec::AwsInstance).to receive(:start).with(hash_including(role: 'db_server'))
       subject
     end
 

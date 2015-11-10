@@ -1,12 +1,16 @@
+require 'serverspec'
+
 module AmiSpec
   class ServerSpec
-    def self.run(*args)
-      self.new(args).tap do |instance|
-        instance.run
-      end
+    def self.run(args)
+      new(args).tap(&:run)
     end
 
-    def initialize(tag:, role:)
+    def initialize(instance:, spec:)
+
+    end
+
+    def run
 
     end
   end

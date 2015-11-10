@@ -1,5 +1,9 @@
 source 'https://rubygems.org'
 
 gem 'aws-sdk', '~> 2'
-gem 'rspec'
 gem 'rake'
+gem 'serverspec'
+
+group :test do
+  gem 'rspec'
+end

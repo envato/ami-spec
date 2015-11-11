@@ -2,6 +2,7 @@ require 'ami_spec/aws_instance'
 require 'ami_spec/server_spec'
 
 module AmiSpec
+  class InstanceCreationTimeout < StandardError; end
   # == Parameters:
   # amis::
   #   A hash of roles and amis in the format of:
@@ -27,17 +28,31 @@ module AmiSpec
       )
     end
 
-    # Wait for instances to start
+    timeout = 300
+    until instances.all? { |ec2| ec2.state == 'running' } || timeout < 1
+      sleep 1
+      timeout = timeout - 1
+    end
+
+    if timeout < 1
+      raise InstanceCreationTimeout.new(
+        "Some instances have not started yet: #{instances.collect { |ec2| ec2.state != 'running'} }"
+      )
+    end
 
     results = []
     instances.each do |ec2|
       results.push(ServerSpec.run(instance: ec2, specs: specs).result)
     end
 
-    instances.each do |ec2|
-      ec2.terminate
-    end
-
     results.all?
+  ensure
+    instances.each do |ec2|
+      begin
+        ec2.terminate
+      rescue Aws::EC2::Errors::InvalidInstanceIDNotFound
+        # Ignore since some instances may not have started/been created
+      end
+    end
   end
 end

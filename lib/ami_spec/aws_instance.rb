@@ -15,7 +15,7 @@ module AmiSpec
       @role, @ami, @subnet_id, @key_name, @options = role, ami, subnet_id, key_name, options
     end
 
-    def_delegators :@instance, :instance_id, :tags, :terminate
+    def_delegators :@instance, :instance_id, :tags, :terminate, :private_ip_address, :public_ip_address
 
     def start
       client = Aws::EC2::Client.new(client_options)
@@ -38,13 +38,15 @@ module AmiSpec
         min_count: 1,
         max_count: 1,
         instance_type: @options[:instance_type] || 't2.micro',
-        subnet_id: @subnet_id,
-        key_name: @key_name
+        key_name: @key_name,
+        network_interfaces: [{
+          device_index: 0,
+          associate_public_ip_address: !!@options[:public_ip],
+          subnet_id: @subnet_id
+        }]
       }
 
-      [:security_group_ids].each do |opt|
-        params[opt] = @options[opt] unless @options[opt].nil?
-      end
+      params[:security_group_ids] = @options[:security_group_ids] unless @options[:security_group_ids].nil?
 
       params
     end

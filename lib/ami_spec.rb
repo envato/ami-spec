@@ -20,6 +20,7 @@ module AmiSpec
   #   - region (defaults to AWS_DEFAULT_REGION)
   #   - security_group_ids (defaults to the default security group for the VPC)
   #   - instance_type (defaults to t2.micro)
+  #   - public_ip (defaults to false)
   # == Returns:
   # Boolean - The result of all the server specs
   def self.run(amis:, specs:, subnet_id:, key_name:, aws_options: {})
@@ -27,7 +28,13 @@ module AmiSpec
 
     amis.each_pair do |role, ami|
       instances.push(
-        AwsInstance.start(role: role, ami: ami, subnet_id: subnet_id, key_name: key_name, options: aws_options)
+        AwsInstance.start(
+          role: role,
+          ami: ami,
+          subnet_id: subnet_id,
+          key_name: key_name,
+          options: aws_options,
+        )
       )
     end
 

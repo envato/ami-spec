@@ -2,6 +2,8 @@ require 'aws-sdk'
 
 module AmiSpec
   class AwsInstance
+    extend Forwardable
+
     def self.start(args)
       instance = new(args)
       instance.start
@@ -13,7 +15,10 @@ module AmiSpec
     def initialize(role:, ami:, subnet_id:, key_name:, options: {})
       @role, @ami, @subnet_id, @key_name, @options = role, ami, subnet_id, key_name, options
       @client = Aws::EC2::Client.new(client_parameters)
+      @instance = nil
     end
+
+    def_delegators :@instance, :instance_id, :state, :tag, :terminate
 
     def start
       @instance = @client.run_instances(run_instance_parameters).instances.first

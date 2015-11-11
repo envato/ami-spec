@@ -5,7 +5,7 @@ describe AmiSpec::AwsInstance do
   let(:options) { {} }
   let(:client_double) { instance_double(Aws::EC2::Client) }
   let(:ec2_double) { instance_double(Aws::EC2::Types::Instance) }
-  subject(:instance) do
+  subject(:aws_instance) do
     described_class.new(
       role: role,
       ami: 'ami',
@@ -23,7 +23,7 @@ describe AmiSpec::AwsInstance do
   end
 
   describe '#start' do
-    subject(:start) { instance.start }
+    subject(:start) { aws_instance.start }
     context 'with no options' do
       it 'does not include optional parameters' do
         expect(client_double).to receive(:run_instances).with(
@@ -51,5 +51,11 @@ describe AmiSpec::AwsInstance do
       start
     end
 
+    it 'delegates some methods to the instance variable' do
+      expect(ec2_double).to receive(:instance_id)
+      start
+      aws_instance.instance_id
+    end
   end
+
 end

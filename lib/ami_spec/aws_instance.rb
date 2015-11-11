@@ -6,37 +6,32 @@ module AmiSpec
     extend Forwardable
 
     def self.start(args)
-      instance = new(args)
-      instance.start
-      instance
+      new(args).tap do |instance|
+        instance.start
+      end
     end
-
-    attr_reader :instance
 
     def initialize(role:, ami:, subnet_id:, key_name:, options: {})
       @role, @ami, @subnet_id, @key_name, @options = role, ami, subnet_id, key_name, options
-      @client = Aws::EC2::Client.new(client_parameters)
-      @instance = nil
     end
 
-    def_delegators :@instance, :instance_id, :state, :tag, :terminate
+    def_delegators :@instance, :instance_id, :state, :tags, :terminate
 
     def start
-      @instance = @client.run_instances(run_instance_parameters).instances.first
+      client = Aws::EC2::Client.new(client_options)
+      placeholder_instance = client.run_instances(instances_options).instances.first
+
+      @instance = Aws::EC2::Instance.new(placeholder_instance.instance_id)
       tag_instance
     end
 
     private
 
-    def client_parameters
-      if @options[:region]
-        { region: @options[:region] }
-      else
-        {}
-      end
+    def client_options
+      !@options[:region].nil? ? {region: @options[:region]} : {}
     end
 
-    def run_instance_parameters
+    def instances_options
       params = {
         image_id: @ami,
         min_count: 1,
@@ -46,7 +41,7 @@ module AmiSpec
         key_name: @key_name
       }
 
-      [:region, :security_group_ids].each do |opt|
+      [:security_group_ids].each do |opt|
         params[opt] = @options[opt] unless @options[opt].nil?
       end
 
@@ -54,7 +49,7 @@ module AmiSpec
     end
 
     def tag_instance
-      @client.create_tags(resources: [@instance.instance_id], tags: [{ key: 'AmiSpec', value: @role }])
+      @instance.create_tags(tags: [{ key: 'AmiSpec', value: @role }])
     end
   end
 end

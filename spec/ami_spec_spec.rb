@@ -3,7 +3,7 @@ require 'spec_helper'
 describe AmiSpec do
   let(:amis) { {'web_server' => 'ami-1234abcd', 'db_server' => 'ami-1234abcd'} }
   let(:ec2_double) { instance_double(AmiSpec::AwsInstance) }
-  let(:state) { 'running' }
+  let(:state) { double(name: 'running') }
   let(:test_result) { true }
   subject { described_class.run(amis: amis, specs: '/tmp/foobar', subnet_id: 'subnet-1234abcd', key_name: 'key') }
 
@@ -36,7 +36,7 @@ describe AmiSpec do
   end
 
   context 'instances do not start' do
-    let(:state) { 'pending' }
+    let(:state) { double(name: 'pending') }
 
     after do
       expect{subject}.to raise_error(AmiSpec::InstanceCreationTimeout)

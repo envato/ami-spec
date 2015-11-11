@@ -6,12 +6,21 @@ module AmiSpec
       new(args).tap(&:run)
     end
 
-    def initialize(instance:, spec:)
-
+    def initialize(instance:, spec:, private_ip: true, user:, key_file:)
+      @ip = private_ip ? instance.private_ip_address : instance.public_ip_address
+      @role = instance.tags.find{ |tag| tag.key == 'AmiSpec' }.value
+      @spec = spec
+      @user = user
+      @key_file = key_file
     end
 
     def run
-
+      set :backend, :ssh
+      set :host, @ip
+      set :ssh_options, :user => @user, :keys => [@key_file]
+      RSpec::Core::Runner.disable_autorun!
+      require File.join(@spec, 'spec_helper')
+      RSpec::Core::Runner.run(Dir.glob("#{@spec}/#{@role}/*_spec.rb"))
     end
   end
 end

@@ -15,15 +15,19 @@ module AmiSpec
   #   The subnet_id to start instances in.
   # key_name::
   #   The SSH key name to assign to instances. This key name must exist on the executing host for passwordless login.
+  # key_file::
+  #   The SSH key file to use to connect to the host.
   # aws_options::
   #   A hash of AWS options. Possible values are:
   #   - region (defaults to AWS_DEFAULT_REGION)
   #   - security_group_ids (defaults to the default security group for the VPC)
   #   - instance_type (defaults to t2.micro)
   #   - public_ip (defaults to false)
+  # ssh_user::
+  #   The username to SSH to the AMI with.
   # == Returns:
-  # Boolean - The result of all the server specs
-  def self.run(amis:, specs:, subnet_id:, key_name:, aws_options: {})
+  # Boolean - The result of all the server specs.
+  def self.run(amis:, specs:, subnet_id:, key_name:, key_file:, aws_options: {}, ssh_user:)
     instances = []
 
     amis.each_pair do |role, ami|
@@ -40,7 +44,15 @@ module AmiSpec
 
     results = []
     instances.each do |ec2|
-      results.push(ServerSpec.run(instance: ec2, spec: specs))
+      results.push(
+        ServerSpec.run(
+          instance: ec2,
+          spec: specs,
+          private_ip: aws_options[:private_ip],
+          user: ssh_user,
+          key_file: key_file,
+        )
+      )
     end
 
     results.all?

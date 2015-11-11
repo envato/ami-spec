@@ -4,7 +4,8 @@ describe AmiSpec::AwsInstance do
   let(:role) { 'web_server' }
   let(:options) { {} }
   let(:client_double) { instance_double(Aws::EC2::Client) }
-  let(:ec2_double) { instance_double(Aws::EC2::Types::Instance) }
+  let(:new_ec2_double) { instance_double(Aws::EC2::Types::Instance) }
+  let(:ec2_double) { instance_double(Aws::EC2::Instance) }
   subject(:aws_instance) do
     described_class.new(
       role: role,
@@ -17,9 +18,12 @@ describe AmiSpec::AwsInstance do
 
   before do
     allow(Aws::EC2::Client).to receive(:new).and_return(client_double)
-    allow(client_double).to receive(:run_instances).and_return(double(instances: [ec2_double]))
-    allow(client_double).to receive(:create_tags).and_return(double)
+    allow(client_double).to receive(:run_instances).and_return(double(instances: [new_ec2_double]))
+    allow(ec2_double).to receive(:create_tags).and_return(double)
+    allow(Aws::EC2::Instance).to receive(:new).and_return(ec2_double)
+    allow(new_ec2_double).to receive(:instance_id)
     allow(ec2_double).to receive(:instance_id)
+    allow(ec2_double).to receive(:wait_until_running)
   end
 
   describe '#start' do
@@ -38,14 +42,14 @@ describe AmiSpec::AwsInstance do
 
       it 'does include options' do
         expect(client_double).to receive(:run_instances).with(
-                                   hash_including(:region, :security_group_ids)
+                                   hash_including(:security_group_ids)
                                  )
         start
       end
     end
 
     it 'tags the instance with a role' do
-      expect(client_double).to receive(:create_tags).with(
+      expect(ec2_double).to receive(:create_tags).with(
                                  hash_including(tags: [{ key: 'AmiSpec', value: role}])
                                )
       start

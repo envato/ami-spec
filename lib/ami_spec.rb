@@ -20,11 +20,9 @@ module AmiSpec
   #   - region (defaults to AWS_DEFAULT_REGION)
   #   - security_group_ids (defaults to the default security group for the VPC)
   #   - instance_type (defaults to t2.micro)
+  # == Returns:
+  # Boolean - The result of all the server specs
   def self.run(amis:, specs:, subnet_id:, key_name:, aws_options: {})
-
-
-    wait_until_running
-
     instances = []
 
     amis.each_pair do |role, ami|
@@ -33,21 +31,9 @@ module AmiSpec
       )
     end
 
-    timeout = 300
-    until instances.all? { |ec2| ec2.state.name == 'running' } || timeout < 1
-      sleep 1
-      timeout = timeout - 1
-    end
-
-    if timeout < 1
-      raise InstanceCreationTimeout.new(
-        "Some instances have not started yet. #{ instances.collect(&:instance_id) }"
-      )
-    end
-
     results = []
     instances.each do |ec2|
-      results.push(ServerSpec.run(instance: ec2, specs: specs).result)
+      results.push(ServerSpec.run(instance: ec2, spec: specs))
     end
 
     results.all?

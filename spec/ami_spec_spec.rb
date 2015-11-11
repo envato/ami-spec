@@ -9,9 +9,8 @@ describe AmiSpec do
 
   before do
     allow(AmiSpec::AwsInstance).to receive(:start).and_return(ec2_double)
-    allow(AmiSpec::ServerSpec).to receive(:run).and_return(double(result: test_result))
+    allow(AmiSpec::ServerSpec).to receive(:run).and_return(test_result)
     allow(ec2_double).to receive(:terminate).and_return(true)
-    allow(ec2_double).to receive(:state).and_return(state)
     allow_any_instance_of(Object).to receive(:sleep)
   end
 
@@ -32,26 +31,6 @@ describe AmiSpec do
 
     it 'returns false' do
       expect(subject).to be_falsey
-    end
-  end
-
-  context 'instances do not start' do
-    let(:state) { double(name: 'pending') }
-
-    after do
-      expect{subject}.to raise_error(AmiSpec::InstanceCreationTimeout)
-    end
-
-    it 'raises an exception' do
-    end
-
-    it 'still attempts to terminate the instance' do
-      expect(ec2_double).to receive(:terminate).twice
-    end
-
-    it 'continues to terminate instances even if an exception is raised' do
-      allow(ec2_double).to receive(:terminate).and_raise(Aws::EC2::Errors::InvalidInstanceIDNotFound.new('a', 'b'))
-      expect(ec2_double).to receive(:terminate)
     end
   end
 end

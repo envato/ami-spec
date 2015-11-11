@@ -15,7 +15,7 @@ module AmiSpec
       @role, @ami, @subnet_id, @key_name, @options = role, ami, subnet_id, key_name, options
     end
 
-    def_delegators :@instance, :instance_id, :state, :tags, :terminate
+    def_delegators :@instance, :instance_id, :tags, :terminate
 
     def start
       client = Aws::EC2::Client.new(client_options)
@@ -23,6 +23,7 @@ module AmiSpec
 
       @instance = Aws::EC2::Instance.new(placeholder_instance.instance_id)
       tag_instance
+      @instance.wait_until_running
     end
 
     private

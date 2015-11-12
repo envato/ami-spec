@@ -2,6 +2,7 @@ require 'ami_spec/aws_instance'
 require 'ami_spec/server_spec'
 
 module AmiSpec
+  class InstanceConnectionTimeout < StandardError; end
   # == Parameters:
   # amis::
   #   A hash of roles and amis in the format of:
@@ -64,22 +65,27 @@ module AmiSpec
       begin
         ec2.terminate unless debug
       rescue Aws::EC2::Errors::InvalidInstanceIDNotFound
-        # Ignore since some instances may not have started/been created
+        puts "Failed to stop #{ec2.instance_id}"
       end
     end
   end
 
   def self.wait_for_ssh(ip:, user:, key_file:)
+    last_error = ''
     retries = 30
     while retries > 1
       begin
         Net::SSH.start(ip, user, keys: [key_file], timeout: 5) { |ssh| ssh.exec 'echo boo!'}
-      rescue Errno::ETIMEDOUT, Errno::ECONNREFUSED, Timeout::Error
-        # Do nothing
+      rescue Errno::ETIMEDOUT, Errno::ECONNREFUSED, Timeout::Error => error
+        last_error = error
       else
         break
       end
       retries = retries - 1
+    end
+
+    if retries < 1
+      raise InstanceConnectionTimeout.new("Timed out waiting for SSH to become available: #{last_error}")
     end
   end
 end

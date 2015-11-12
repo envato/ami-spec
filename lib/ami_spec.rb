@@ -29,9 +29,17 @@ module AmiSpec
   #   Don't terminate the instances on exit
   # == Returns:
   # Boolean - The result of all the server specs.
-  def self.run(amis:, specs:, subnet_id:, key_name:, key_file:, aws_options: {}, ssh_user:, debug: false)
-    instances = []
+  def self.run(options)
+    amis = options.fetch(:amis)
+    specs = options.fetch(:specs)
+    subnet_id = options.fetch(:subnet_id)
+    key_name = options.fetch(:key_name)
+    key_file = options.fetch(:key_file)
+    aws_options = options.fetch(:aws_options, {})
+    ssh_user = options.fetch(:ssh_user)
+    debug = options.fetch(:debug, false)
 
+    instances = []
     amis.each_pair do |role, ami|
       instances.push(
         AwsInstance.start(
@@ -43,8 +51,6 @@ module AmiSpec
         )
       )
     end
-
-
 
     results = []
     instances.each do |ec2|
@@ -72,7 +78,11 @@ module AmiSpec
     end
   end
 
-  def self.wait_for_ssh(ip:, user:, key_file:)
+  def self.wait_for_ssh(options)
+    ip = options.fetch(:ip)
+    user = options.fetch(:user)
+    key_file = options.fetch(:key_file)
+
     last_error = ''
     retries = 30
     while retries > 1

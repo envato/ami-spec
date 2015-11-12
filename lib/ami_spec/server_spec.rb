@@ -9,12 +9,15 @@ module AmiSpec
       new(args).tap(&:run)
     end
 
-    def initialize(instance:, spec:, private_ip: true, user:, key_file:)
+    def initialize(options)
+      instance = options.fetch(:instance)
+      private_ip = options.fetch(:private_ip, true)
+
       @ip = private_ip ? instance.private_ip_address : instance.public_ip_address
       @role = instance.tags.find{ |tag| tag.key == 'AmiSpec' }.value
-      @spec = spec
-      @user = user
-      @key_file = key_file
+      @spec = options.fetch(:spec)
+      @user = options.fetch(:user)
+      @key_file = options.fetch(:key_file)
     end
 
     def run

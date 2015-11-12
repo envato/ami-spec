@@ -1,3 +1,6 @@
+# Loading serverspec first causes a weird error - stack level too deep
+# Requiring rspec first fixes that *shrug*
+require 'rspec'
 require 'serverspec'
 
 module AmiSpec

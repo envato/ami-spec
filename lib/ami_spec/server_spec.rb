@@ -15,11 +15,13 @@ module AmiSpec
     end
 
     def run
+      $LOAD_PATH.unshift(@spec) unless $LOAD_PATH.include?(@spec)
+      require File.join(@spec, 'spec_helper')
+
       set :backend, :ssh
       set :host, @ip
       set :ssh_options, :user => @user, :keys => [@key_file]
       RSpec::Core::Runner.disable_autorun!
-      require File.join(@spec, 'spec_helper')
       RSpec::Core::Runner.run(Dir.glob("#{@spec}/#{@role}/*_spec.rb"))
     end
   end

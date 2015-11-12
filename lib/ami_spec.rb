@@ -25,6 +25,8 @@ module AmiSpec
   #   - public_ip (defaults to false)
   # ssh_user::
   #   The username to SSH to the AMI with.
+  # debug::
+  #   Don't terminate the instances on exit
   # == Returns:
   # Boolean - The result of all the server specs.
   def self.run(amis:, specs:, subnet_id:, key_name:, key_file:, aws_options: {}, ssh_user:, debug: false)

@@ -5,12 +5,22 @@ describe AmiSpec do
   let(:ec2_double) { instance_double(AmiSpec::AwsInstance) }
   let(:state) { double(name: 'running') }
   let(:test_result) { true }
-  subject { described_class.run(amis: amis, specs: '/tmp/foobar', subnet_id: 'subnet-1234abcd', key_name: 'key') }
+  subject do
+    described_class.run(
+      :amis => amis,
+      :specs => '/tmp/foobar',
+      :subnet_id => 'subnet-1234abcd',
+      :key_name => 'key',
+      :key_file => 'key.pem',
+      :ssh_user => 'ubuntu',
+    )
+  end
 
   before do
     allow(AmiSpec::AwsInstance).to receive(:start).and_return(ec2_double)
     allow(AmiSpec::ServerSpec).to receive(:run).and_return(test_result)
     allow(ec2_double).to receive(:terminate).and_return(true)
+    allow(ec2_double).to receive(:private_ip_address).and_return('127.0.0.1')
     allow_any_instance_of(Object).to receive(:sleep)
   end
 

@@ -2,7 +2,6 @@ require 'ami_spec/aws_instance'
 require 'ami_spec/server_spec'
 
 module AmiSpec
-  class InstanceCreationTimeout < StandardError; end
   # == Parameters:
   # amis::
   #   A hash of roles and amis in the format of:
@@ -27,7 +26,7 @@ module AmiSpec
   #   The username to SSH to the AMI with.
   # == Returns:
   # Boolean - The result of all the server specs.
-  def self.run(amis:, specs:, subnet_id:, key_name:, key_file:, aws_options: {}, ssh_user:, debug:)
+  def self.run(amis:, specs:, subnet_id:, key_name:, key_file:, aws_options: {}, ssh_user:, debug: false)
     instances = []
 
     amis.each_pair do |role, ami|
@@ -42,8 +41,12 @@ module AmiSpec
       )
     end
 
+
+
     results = []
     instances.each do |ec2|
+      ip = aws_options[:public_ip] ? ec2.public_ip_address : ec2.private_ip_address
+      wait_for_ssh(ip: ip, user: ssh_user, key_file: key_file)
       results.push(
         ServerSpec.run(
           instance: ec2,
@@ -63,6 +66,20 @@ module AmiSpec
       rescue Aws::EC2::Errors::InvalidInstanceIDNotFound
         # Ignore since some instances may not have started/been created
       end
+    end
+  end
+
+  def self.wait_for_ssh(ip:, user:, key_file:)
+    retries = 30
+    while retries > 1
+      begin
+        Net::SSH.start(ip, user, keys: [key_file], timeout: 5) { |ssh| ssh.exec 'echo boo!'}
+      rescue Errno::ETIMEDOUT, Errno::ECONNREFUSED, Timeout::Error
+        # Do nothing
+      else
+        break
+      end
+      retries = retries - 1
     end
   end
 end

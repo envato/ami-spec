@@ -27,7 +27,7 @@ module AmiSpec
   #   The username to SSH to the AMI with.
   # == Returns:
   # Boolean - The result of all the server specs.
-  def self.run(amis:, specs:, subnet_id:, key_name:, key_file:, aws_options: {}, ssh_user:)
+  def self.run(amis:, specs:, subnet_id:, key_name:, key_file:, aws_options: {}, ssh_user:, debug:)
     instances = []
 
     amis.each_pair do |role, ami|
@@ -59,7 +59,7 @@ module AmiSpec
   ensure
     instances.each do |ec2|
       begin
-        ec2.terminate
+        ec2.terminate unless debug
       rescue Aws::EC2::Errors::InvalidInstanceIDNotFound
         # Ignore since some instances may not have started/been created
       end

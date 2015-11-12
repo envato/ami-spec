@@ -11,8 +11,12 @@ module AmiSpec
       end
     end
 
-    def initialize(role:, ami:, subnet_id:, key_name:, options: {})
-      @role, @ami, @subnet_id, @key_name, @options = role, ami, subnet_id, key_name, options
+    def initialize(options)
+      @role = options.fetch(:role)
+      @ami = options.fetch(:ami)
+      @subnet_id = options.fetch(:subnet_id)
+      @key_name = options.fetch(:key_name)
+      @options = options.fetch(:options, {})
     end
 
     def_delegators :@instance, :instance_id, :tags, :terminate, :private_ip_address, :public_ip_address

@@ -42,11 +42,13 @@ module AmiSpec
         network_interfaces: [{
           device_index: 0,
           associate_public_ip_address: !!@options[:public_ip],
-          subnet_id: @subnet_id
+          subnet_id: @subnet_id,
         }]
       }
 
-      params[:security_group_ids] = @options[:security_group_ids] unless @options[:security_group_ids].nil?
+      unless @options[:security_group_ids].nil?
+        params[:network_interfaces][0][:groups] = @options[:security_group_ids]
+      end
 
       params
     end

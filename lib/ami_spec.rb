@@ -85,7 +85,7 @@ module AmiSpec
 
     last_error = ''
     retries = 30
-    while retries > 1
+    while retries > 0
       begin
         Net::SSH.start(ip, user, keys: [key_file], timeout: 5) { |ssh| ssh.exec 'echo boo!'}
       rescue Errno::ETIMEDOUT, Errno::ECONNREFUSED, Timeout::Error => error

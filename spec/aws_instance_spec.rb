@@ -31,7 +31,7 @@ describe AmiSpec::AwsInstance do
     context 'with no options' do
       it 'does not include optional parameters' do
         expect(client_double).to receive(:run_instances).with(
-                                   hash_excluding(:region, :security_group_ids)
+                                   hash_excluding(:network_interfaces=>array_including(hash_including(:groups)))
                                  )
         start
       end
@@ -42,7 +42,7 @@ describe AmiSpec::AwsInstance do
 
       it 'does include options' do
         expect(client_double).to receive(:run_instances).with(
-                                   hash_including(:security_group_ids)
+                                   hash_including(:network_interfaces=>array_including(hash_including(:groups)))
                                  )
         start
       end

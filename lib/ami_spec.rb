@@ -25,6 +25,8 @@ module AmiSpec
   #   - public_ip (defaults to false)
   # ssh_user::
   #   The username to SSH to the AMI with.
+  # ssh_retries::
+  #   Set the maximum number of ssh retries while waiting for the instance to boot.
   # debug::
   #   Don't terminate the instances on exit
   # == Returns:
@@ -38,6 +40,7 @@ module AmiSpec
     aws_options = options.fetch(:aws_options, {})
     ssh_user = options.fetch(:ssh_user)
     debug = options.fetch(:debug, false)
+    ssh_retries = options.fetch(:ssh_retries, nil)
 
     instances = []
     amis.each_pair do |role, ami|
@@ -55,7 +58,7 @@ module AmiSpec
     results = []
     instances.each do |ec2|
       ip = aws_options[:public_ip] ? ec2.public_ip_address : ec2.private_ip_address
-      wait_for_ssh(ip: ip, user: ssh_user, key_file: key_file)
+      wait_for_ssh(ip: ip, user: ssh_user, key_file: key_file, retries: ssh_retries)
       results.push(
         ServerSpec.run(
           instance: ec2,
@@ -82,9 +85,9 @@ module AmiSpec
     ip = options.fetch(:ip)
     user = options.fetch(:user)
     key_file = options.fetch(:key_file)
+    retries = options.fetch(:retries, 30)
 
     last_error = ''
-    retries = 30
     while retries > 0
       begin
         Net::SSH.start(ip, user, keys: [key_file], timeout: 5) { |ssh| ssh.exec 'echo boo!'}

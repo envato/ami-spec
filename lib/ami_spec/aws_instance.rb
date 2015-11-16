@@ -16,7 +16,10 @@ module AmiSpec
       @ami = options.fetch(:ami)
       @subnet_id = options.fetch(:subnet_id)
       @key_name = options.fetch(:key_name)
-      @options = options.fetch(:options, {})
+      @instance_type = options.fetch(:instance_type)
+      @public_ip = options.fetch(:public_ip)
+      @region = options.fetch(:region)
+      @security_group_ids = options.fetch(:security_group_ids)
     end
 
     def_delegators :@instance, :instance_id, :tags, :terminate, :private_ip_address, :public_ip_address
@@ -33,7 +36,7 @@ module AmiSpec
     private
 
     def client_options
-      !@options[:region].nil? ? {region: @options[:region]} : {}
+      !@region.nil? ? {region: @region} : {}
     end
 
     def instances_options
@@ -41,17 +44,17 @@ module AmiSpec
         image_id: @ami,
         min_count: 1,
         max_count: 1,
-        instance_type: @options[:instance_type] || 't2.micro',
+        instance_type: @instance_type,
         key_name: @key_name,
         network_interfaces: [{
           device_index: 0,
-          associate_public_ip_address: !!@options[:public_ip],
+          associate_public_ip_address: @public_ip,
           subnet_id: @subnet_id,
         }]
       }
 
-      unless @options[:security_group_ids].nil?
-        params[:network_interfaces][0][:groups] = @options[:security_group_ids]
+      unless @security_group_ids.nil?
+        params[:network_interfaces][0][:groups] = @security_group_ids
       end
 
       params

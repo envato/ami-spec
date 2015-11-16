@@ -7,12 +7,16 @@ describe AmiSpec do
   let(:test_result) { true }
   subject do
     described_class.run(
-      :amis => amis,
-      :specs => '/tmp/foobar',
-      :subnet_id => 'subnet-1234abcd',
-      :key_name => 'key',
-      :key_file => 'key.pem',
-      :ssh_user => 'ubuntu',
+      amis: amis,
+      specs: '/tmp/foobar',
+      subnet_id: 'subnet-1234abcd',
+      key_name: 'key',
+      key_file: 'key.pem',
+      aws_public_ip: false,
+      aws_instance_type: 't2.micro',
+      ssh_user: 'ubuntu',
+      debug: false,
+      ssh_retries: 30,
     )
   end
 
@@ -48,7 +52,9 @@ describe AmiSpec do
   end
 
   describe '#wait_for_ssh' do
-    subject { described_class.wait_for_ssh(:ip => '127.0.0.1', :user => 'ubuntu', :key_file =>'key.pem') }
+    subject do
+      described_class.wait_for_ssh(ip: '127.0.0.1', user: 'ubuntu', key_file: 'key.pem', retries: 30)
+    end
 
     it 'returns after one attempt if ssh connection succeeds' do
       expect(Net::SSH).to receive(:start)

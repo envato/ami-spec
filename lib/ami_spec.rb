@@ -1,5 +1,6 @@
 require 'ami_spec/aws_instance'
 require 'ami_spec/server_spec'
+require 'trollop'
 
 module AmiSpec
   class InstanceConnectionTimeout < StandardError; end
@@ -112,5 +113,31 @@ module AmiSpec
     if retries < 1
       raise InstanceConnectionTimeout.new("Timed out waiting for SSH to become available: #{last_error}")
     end
+  end
+
+  def self.invoke
+    options = Trollop::options do
+      opt :amis, "The role and ami, comma separated.\ni.e. web_server,ami-id.\nMay be specified multiple times",
+          type: :strings, required: true
+      opt :specs, "The directory to find ServerSpecs", type: :string, required: true
+      opt :subnet_id, "The subnet to start the instance in", type: :string, required: true
+      opt :key_name, "The SSH key name to assign to instances", type: :string, required: true
+      opt :key_file, "The SSH private key file associated to the key_name", type: :string, required: true
+      opt :ssh_user, "The user to ssh to the instance as", type: :string, required: true
+      opt :aws_region, "The AWS region, defaults to AWS_DEFAULT_REGION environment variable", type: :string
+      opt :aws_instance_type, "The ec2 instance type, defaults to t2.micro", type: :string, default: 't2.micro'
+      opt :aws_security_groups, "Security groups to associate to the launched instances. May be specified multiple times",
+          type: :strings, default: nil
+      opt :aws_public_ip, "Launch instances with a public IP"
+      opt :ssh_retries, "The number of times we should try sshing to the ec2 instance before giving up. Defaults to 30",
+          type: :int, default: 30
+      opt :debug, "Don't terminate instances on exit"
+    end
+
+    roles_and_amis = options[:amis].flatten.map { |role_ami| role_ami.split(',') }
+    roles_and_amis.flatten!
+    options[:amis] = Hash[*roles_and_amis]
+
+    exit run(options)
   end
 end

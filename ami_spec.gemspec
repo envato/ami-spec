@@ -6,7 +6,7 @@ require 'ami_spec/version'
 Gem::Specification.new do |gem|
   gem.name          = 'ami_spec'
   gem.version       = AmiSpec::VERSION
-  gem.authors       = ['Patrick Robinson']
+  gem.authors       = ['Patrick Robinson', 'Martin Jagusch']
   gem.email         = []
   gem.description   = 'Acceptance testing your AMIs'
   gem.summary       = gem.description
@@ -20,4 +20,5 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'aws-sdk', '~> 2'
   gem.add_dependency 'rake'
   gem.add_dependency 'serverspec'
+  gem.add_dependency 'trollop'
 end

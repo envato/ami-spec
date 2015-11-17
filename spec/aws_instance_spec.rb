@@ -2,7 +2,8 @@ require 'spec_helper'
 
 describe AmiSpec::AwsInstance do
   let(:role) { 'web_server' }
-  let(:options) { {} }
+  let(:sec_group_id) { nil }
+  let(:region) { nil }
   let(:client_double) { instance_double(Aws::EC2::Client) }
   let(:new_ec2_double) { instance_double(Aws::EC2::Types::Instance) }
   let(:ec2_double) { instance_double(Aws::EC2::Instance) }
@@ -12,7 +13,10 @@ describe AmiSpec::AwsInstance do
       ami: 'ami',
       subnet_id: 'subnet',
       key_name: 'key',
-      options: options
+      instance_type: 't2.micro',
+      public_ip: false,
+      security_group_ids: sec_group_id,
+      region: region
     )
   end
 
@@ -28,22 +32,40 @@ describe AmiSpec::AwsInstance do
 
   describe '#start' do
     subject(:start) { aws_instance.start }
-    context 'with no options' do
-      it 'does not include optional parameters' do
+    context 'without optional values' do
+      it 'does not include the security group' do
         expect(client_double).to receive(:run_instances).with(
                                    hash_excluding(:network_interfaces=>array_including(hash_including(:groups)))
                                  )
         start
       end
+
+      it 'does include the region' do
+        expect(Aws::EC2::Client).to receive(:new).with(
+                                      hash_excluding(:region => region)
+                                    )
+        start
+      end
     end
 
-    context 'with options' do
-      let(:options) { {region: 'us-east-1', security_group_ids: '1234'}}
+    context 'with security group' do
+      let(:sec_group_id) { ['1234'] }
 
-      it 'does include options' do
+      it 'does include security groups' do
         expect(client_double).to receive(:run_instances).with(
                                    hash_including(:network_interfaces=>array_including(hash_including(:groups)))
                                  )
+        start
+      end
+    end
+
+    context 'with region' do
+      let(:region) { 'us-east-1' }
+
+      it 'does include the region' do
+        expect(Aws::EC2::Client).to receive(:new).with(
+                                      hash_including(:region => region)
+                                    )
         start
       end
     end

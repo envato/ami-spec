@@ -13,6 +13,7 @@ module AmiSpec
       instance = options.fetch(:instance)
       private_ip = options.fetch(:private_ip, true)
 
+      @debug = options.fetch(:debug)
       @ip = private_ip ? instance.private_ip_address : instance.public_ip_address
       @role = instance.tags.find{ |tag| tag.key == 'AmiSpec' }.value
       @spec = options.fetch(:spec)
@@ -27,6 +28,9 @@ module AmiSpec
       set :backend, :ssh
       set :host, @ip
       set :ssh_options, :user => @user, :keys => [@key_file]
+
+      RSpec.configuration.fail_fast = true if @debug
+
       RSpec::Core::Runner.disable_autorun!
       RSpec::Core::Runner.run(Dir.glob("#{@spec}/#{@role}/*_spec.rb"))
     end

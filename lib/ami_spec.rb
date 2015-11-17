@@ -77,6 +77,7 @@ module AmiSpec
           private_ip: options[:aws_public_ip],
           user: ssh_user,
           key_file: key_file,
+          debug: debug,
         )
       )
     end

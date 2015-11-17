@@ -118,8 +118,10 @@ module AmiSpec
 
   def self.invoke
     options = Trollop::options do
-      opt :amis, "The role and ami, comma separated.\ni.e. web_server,ami-id.\nMay be specified multiple times",
-          type: :strings, required: true
+      opt :role, "The role to test, this should map to a directory in the spec folder", type: :string
+      opt :ami, "The ami ID to run tests against", type: :string
+      opt :role_ami_file, "A file containing comma separated roles and amis. i.e.\nweb_server,ami-id.",
+          type: :string
       opt :specs, "The directory to find ServerSpecs", type: :string, required: true
       opt :subnet_id, "The subnet to start the instance in", type: :string, required: true
       opt :key_name, "The SSH key name to assign to instances", type: :string, required: true
@@ -135,9 +137,18 @@ module AmiSpec
       opt :debug, "Don't terminate instances on exit"
     end
 
-    roles_and_amis = options[:amis].flatten.map { |role_ami| role_ami.split(',') }
-    roles_and_amis.flatten!
-    options[:amis] = Hash[*roles_and_amis]
+    if options[:role] && options[:ami]
+      options[:amis] = { options[:role] => options[:ami] }
+      options.delete(:role)
+      options.delete(:ami)
+    elsif options[:role_ami_file]
+      file_lines = File.read(options[:role_ami_file]).split("\n")
+      file_array = file_lines.collect { |line| line.split(',') }.flatten
+      options[:amis] = Hash[*file_array]
+      options.delete(:role_ami_file)
+    else
+      fail "You must specify either role and ami or role_ami_file"
+    end
 
     exit run(options)
   end

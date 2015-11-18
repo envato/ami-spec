@@ -1,5 +1,8 @@
 require 'ami_spec/aws_instance'
+require 'ami_spec/aws_instance_options'
 require 'ami_spec/server_spec'
+require 'ami_spec/server_spec_options'
+require 'ami_spec/wait_for_ssh'
 require 'trollop'
 
 module AmiSpec
@@ -37,82 +40,39 @@ module AmiSpec
   # == Returns:
   # Boolean - The result of all the server specs.
   def self.run(options)
-    amis = options.fetch(:amis)
-    specs = options.fetch(:specs)
-    subnet_id = options.fetch(:subnet_id)
-    key_name = options.fetch(:key_name)
-    key_file = options.fetch(:key_file)
-    aws_public_ip = options.fetch(:aws_public_ip)
-    aws_instance_type = options.fetch(:aws_instance_type)
-    aws_security_groups = options.fetch(:aws_security_groups, nil)
-    aws_region = options.fetch(:aws_region, nil)
-    ssh_user = options.fetch(:ssh_user)
-    debug = options.fetch(:debug)
-    ssh_retries = options.fetch(:ssh_retries)
-
     instances = []
-    amis.each_pair do |role, ami|
-      instances.push(
-        AwsInstance.start(
-          role: role,
-          ami: ami,
-          subnet_id: subnet_id,
-          key_name: key_name,
-          public_ip: aws_public_ip,
-          instance_type: aws_instance_type,
-          security_group_ids: aws_security_groups,
-          region: aws_region,
-        )
-      )
+    options[:amis].each_pair do |role, ami|
+      aws_instance_options = AwsInstanceOptions.new(options.merge(role: role, ami: ami))
+      instances << AwsInstance.start(aws_instance_options)
     end
 
     results = []
-    instances.each do |ec2|
-      ip = options[:aws_public_ip] ? ec2.public_ip_address : ec2.private_ip_address
-      wait_for_ssh(ip: ip, user: ssh_user, key_file: key_file, retries: ssh_retries)
-      results.push(
-        ServerSpec.new(
-          instance: ec2,
-          spec: specs,
-          public_ip: options[:aws_public_ip],
-          user: ssh_user,
-          key_file: key_file,
-          debug: debug,
-        ).run
-      )
-    end
+    instances.each do |instance|
+      ip_address = options[:aws_public_ip] ? instance.public_ip_address : instance.private_ip_address
+      WaitForSSH.wait(ip_address, options[:ssh_user], options[:key_file], options[:ssh_retries])
 
-    results.all?
+      server_spec_options = ServerSpecOptions.new(options.merge(instance: instance))
+      results << ServerSpec.new(server_spec_options).run
+     end
+
+    results.all? { |result| result == true }
   ensure
-    instances.each do |ec2|
-      begin
-        ec2.terminate unless debug
-      rescue Aws::EC2::Errors::InvalidInstanceIDNotFound
-        puts "Failed to stop #{ec2.instance_id}"
-      end
-    end
+    stop_instances(instances, options[:debug])
   end
 
-  def self.wait_for_ssh(options)
-    ip = options.fetch(:ip)
-    user = options.fetch(:user)
-    key_file = options.fetch(:key_file)
-    retries = options.fetch(:retries)
+  private_class_method :stop_instances
 
-    last_error = ''
-    while retries > 0
+  def self.stop_instances(instances, debug)
+    instances.each do |instance|
       begin
-        Net::SSH.start(ip, user, keys: [key_file], paranoid: false) { |ssh| ssh.exec 'echo boo!'}
-      rescue Errno::ETIMEDOUT, Errno::ECONNREFUSED, Timeout::Error => error
-        last_error = error
-      else
-        break
+        if debug
+          puts "EC2 instance ##{instance.instance_id} has not been stopped due to debug mode."
+        else
+          instance.terminate
+        end
+      rescue Aws::EC2::Errors::InvalidInstanceIDNotFound
+        puts "Failed to stop EC2 instance ##{instance.instance_id}"
       end
-      retries = retries - 1
-    end
-
-    if retries < 1
-      raise InstanceConnectionTimeout.new("Timed out waiting for SSH to become available: #{last_error}")
     end
   end
 

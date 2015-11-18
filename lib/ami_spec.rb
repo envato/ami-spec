@@ -74,7 +74,7 @@ module AmiSpec
         ServerSpec.run(
           instance: ec2,
           spec: specs,
-          private_ip: options[:aws_public_ip],
+          public_ip: options[:aws_public_ip],
           user: ssh_user,
           key_file: key_file,
           debug: debug,

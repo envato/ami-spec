@@ -11,10 +11,10 @@ module AmiSpec
 
     def initialize(options)
       instance = options.fetch(:instance)
-      private_ip = options.fetch(:private_ip, true)
+      public_ip = options.fetch(:public_ip, true)
 
       @debug = options.fetch(:debug)
-      @ip = private_ip ? instance.private_ip_address : instance.public_ip_address
+      @ip = public_ip ? instance.public_ip_address : instance.private_ip_address
       @role = instance.tags.find{ |tag| tag.key == 'AmiSpec' }.value
       @spec = options.fetch(:spec)
       @user = options.fetch(:user)

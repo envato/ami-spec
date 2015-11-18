@@ -27,7 +27,7 @@ module AmiSpec
 
       set :backend, :ssh
       set :host, @ip
-      set :ssh_options, :user => @user, :keys => [@key_file]
+      set :ssh_options, :user => @user, :keys => [@key_file], :paranoid => false
 
       RSpec.configuration.fail_fast = true if @debug
 

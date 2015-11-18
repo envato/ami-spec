@@ -5,10 +5,6 @@ require 'serverspec'
 
 module AmiSpec
   class ServerSpec
-    def self.run(args)
-      new(args).tap(&:run)
-    end
-
     def initialize(options)
       instance = options.fetch(:instance)
       public_ip = options.fetch(:public_ip, true)
@@ -32,7 +28,9 @@ module AmiSpec
       RSpec.configuration.fail_fast = true if @debug
 
       RSpec::Core::Runner.disable_autorun!
-      RSpec::Core::Runner.run(Dir.glob("#{@spec}/#{@role}/*_spec.rb"))
+      result = RSpec::Core::Runner.run(Dir.glob("#{@spec}/#{@role}/*_spec.rb"))
+
+      result.zero?
     end
   end
 end

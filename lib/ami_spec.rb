@@ -71,14 +71,14 @@ module AmiSpec
       ip = options[:aws_public_ip] ? ec2.public_ip_address : ec2.private_ip_address
       wait_for_ssh(ip: ip, user: ssh_user, key_file: key_file, retries: ssh_retries)
       results.push(
-        ServerSpec.run(
+        ServerSpec.new(
           instance: ec2,
           spec: specs,
           public_ip: options[:aws_public_ip],
           user: ssh_user,
           key_file: key_file,
           debug: debug,
-        )
+        ).run
       )
     end
 

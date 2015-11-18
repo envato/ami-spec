@@ -1,3 +1,5 @@
+require 'net/ssh'
+
 module AmiSpec
   class WaitForSSH
     def self.wait(ip_address, user, key, max_retries)

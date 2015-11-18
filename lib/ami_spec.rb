@@ -55,7 +55,7 @@ module AmiSpec
       results << ServerSpec.new(server_spec_options).run
      end
 
-    results.all? { |result| result == true }
+    results.all?
   ensure
     stop_instances(instances, options[:debug])
   end

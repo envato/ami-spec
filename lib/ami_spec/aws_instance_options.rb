@@ -5,12 +5,12 @@ module AmiSpec
     include Hashie::Extensions::IgnoreUndeclared
 
     property :ami
-    property :instance_type
-    property :key_name
-    property :public_ip
-    property :region
     property :role
-    property :security_group_ids
     property :subnet_id
+    property :key_name
+    property :aws_instance_type
+    property :aws_public_ip
+    property :aws_region
+    property :aws_security_groups
   end
 end

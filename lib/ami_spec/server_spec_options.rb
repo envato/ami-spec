@@ -4,11 +4,11 @@ module AmiSpec
   class ServerSpecOptions < Hashie::Dash
     include Hashie::Extensions::IgnoreUndeclared
 
+    property :instance
     property :aws_public_ip
     property :debug
-    property :instance
     property :key_file
-    property :spec
-    property :user
+    property :specs
+    property :ssh_user
   end
 end

@@ -7,13 +7,13 @@ module AmiSpec
   class ServerSpec
     def initialize(options)
       instance = options.fetch(:instance)
-      public_ip = options.fetch(:public_ip, true)
+      public_ip = options.fetch(:aws_public_ip)
 
       @debug = options.fetch(:debug)
       @ip = public_ip ? instance.public_ip_address : instance.private_ip_address
       @role = instance.tags.find{ |tag| tag.key == 'AmiSpec' }.value
-      @spec = options.fetch(:spec)
-      @user = options.fetch(:user)
+      @spec = options.fetch(:specs)
+      @user = options.fetch(:ssh_user)
       @key_file = options.fetch(:key_file)
     end
 

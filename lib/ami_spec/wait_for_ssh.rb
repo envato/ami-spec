@@ -18,7 +18,7 @@ module AmiSpec
         retries = retries + 1
       end
 
-      if retries > MAX_RETRIES - 1
+      if retries > max_retries - 1
         raise AmiSpec::InstanceConnectionTimeout.new("Timed out waiting for SSH to become available: #{last_error}")
       end
     end

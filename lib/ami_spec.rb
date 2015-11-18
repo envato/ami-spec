@@ -60,8 +60,6 @@ module AmiSpec
     stop_instances(instances, options[:debug])
   end
 
-  private_class_method :stop_instances
-
   def self.stop_instances(instances, debug)
     instances.each do |instance|
       begin
@@ -75,6 +73,8 @@ module AmiSpec
       end
     end
   end
+
+  private_class_method :stop_instances
 
   def self.invoke
     options = Trollop::options do

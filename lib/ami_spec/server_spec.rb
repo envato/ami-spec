@@ -6,7 +6,7 @@ require 'serverspec'
 module AmiSpec
   class ServerSpec
     def self.run(args)
-      new(args).tap(&:run)
+      new(args).run
     end
 
     def initialize(options)

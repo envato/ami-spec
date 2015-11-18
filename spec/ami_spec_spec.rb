@@ -23,7 +23,7 @@ describe AmiSpec do
 
   describe '#run' do
     before do
-      allow(described_class).to receive(:wait_for_ssh).and_return(true)
+      allow(AmiSpec::WaitForSSH).to receive(:wait).and_return(true)
       allow(AmiSpec::AwsInstance).to receive(:start).and_return(ec2_double)
       allow(AmiSpec::ServerSpec).to receive(:new).and_return(server_spec_double)
       allow(ec2_double).to receive(:terminate).and_return(true)

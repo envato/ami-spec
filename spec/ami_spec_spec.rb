@@ -23,7 +23,7 @@ describe AmiSpec do
 
   describe '#run' do
     before do
-      allow(described_class).to receive(:wait_for_ssh).and_return(true)
+      allow(AmiSpec::WaitForSSH).to receive(:wait).and_return(true)
       allow(AmiSpec::AwsInstance).to receive(:start).and_return(ec2_double)
       allow(AmiSpec::ServerSpec).to receive(:new).and_return(server_spec_double)
       allow(ec2_double).to receive(:terminate).and_return(true)
@@ -48,33 +48,6 @@ describe AmiSpec do
 
       it 'returns false' do
         expect(subject).to be_falsey
-      end
-    end
-  end
-
-  describe '#wait_for_ssh' do
-    subject do
-      described_class.wait_for_ssh(ip: '127.0.0.1', user: 'ubuntu', key_file: 'key.pem', retries: 30)
-    end
-
-    it 'returns after one attempt if ssh connection succeeds' do
-      expect(Net::SSH).to receive(:start)
-
-      subject
-    end
-
-    context 'ssh fails' do
-      before do
-        allow(Net::SSH).to receive(:start).and_raise(Errno::ECONNREFUSED, 'ssh failed')
-      end
-
-      it 'raises an exception' do
-        expect{subject}.to raise_error(AmiSpec::InstanceConnectionTimeout)
-      end
-
-      it 'returns the last error' do
-        expect(Net::SSH).to receive(:start).and_raise(Errno::ECONNREFUSED, 'some other error')
-        expect{subject}.to raise_error(AmiSpec::InstanceConnectionTimeout, /ssh failed/)
       end
     end
   end

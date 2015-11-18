@@ -13,10 +13,10 @@ describe AmiSpec::AwsInstance do
       ami: 'ami',
       subnet_id: 'subnet',
       key_name: 'key',
-      instance_type: 't2.micro',
-      public_ip: false,
-      security_group_ids: sec_group_id,
-      region: region
+      aws_instance_type: 't2.micro',
+      aws_public_ip: false,
+      aws_security_groups: sec_group_id,
+      aws_region: region
     )
   end
 

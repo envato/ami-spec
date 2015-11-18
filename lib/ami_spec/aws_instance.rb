@@ -16,10 +16,10 @@ module AmiSpec
       @ami = options.fetch(:ami)
       @subnet_id = options.fetch(:subnet_id)
       @key_name = options.fetch(:key_name)
-      @instance_type = options.fetch(:instance_type)
-      @public_ip = options.fetch(:public_ip)
-      @region = options.fetch(:region)
-      @security_group_ids = options.fetch(:security_group_ids)
+      @instance_type = options.fetch(:aws_instance_type)
+      @public_ip = options.fetch(:aws_public_ip)
+      @region = options.fetch(:aws_region)
+      @security_group_ids = options.fetch(:aws_security_groups)
     end
 
     def_delegators :@instance, :instance_id, :tags, :terminate, :private_ip_address, :public_ip_address

@@ -21,4 +21,5 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'rake'
   gem.add_dependency 'serverspec'
   gem.add_dependency 'trollop'
+  gem.add_dependency 'hashie'
 end

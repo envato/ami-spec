@@ -21,6 +21,9 @@ module AmiSpec
       $LOAD_PATH.unshift(@spec) unless $LOAD_PATH.include?(@spec)
       require File.join(@spec, 'spec_helper')
 
+      # ServerSpec is caching a SSH connection between runs.
+      set :ssh, nil
+
       set :backend, :ssh
       set :host, @ip
       set :ssh_options, :user => @user, :keys => [@key_file], :paranoid => false

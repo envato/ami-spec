@@ -25,6 +25,8 @@ module AmiSpec
     end
 
     def run
+      puts "Running tests for #{@role}"
+
       $LOAD_PATH.unshift(@spec) unless $LOAD_PATH.include?(@spec)
       require File.join(@spec, 'spec_helper')
 

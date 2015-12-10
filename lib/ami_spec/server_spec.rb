@@ -3,7 +3,7 @@
 require 'rspec'
 require 'serverspec'
 
-# I hate Monkeys
+# The Monkey Patch can be removed once https://github.com/mizzy/specinfra/pull/504 is merged
 class Specinfra::Backend::Base
   def self.clear
     @instance = nil

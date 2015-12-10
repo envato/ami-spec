@@ -30,6 +30,10 @@ module AmiSpec
       RSpec::Core::Runner.disable_autorun!
       result = RSpec::Core::Runner.run(Dir.glob("#{@spec}/#{@role}/*_spec.rb"))
 
+      # We can't use Rspec.clear_examples here because it also clears the shared_examples.
+      # As shared examples are loaded in via the spec_helper, we cannot reload them.
+      RSpec.world.example_groups.clear
+
       result.zero?
     end
   end

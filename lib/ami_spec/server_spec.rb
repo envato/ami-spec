@@ -3,6 +3,13 @@
 require 'rspec'
 require 'serverspec'
 
+# The Monkey Patch can be removed once https://github.com/mizzy/specinfra/pull/504 is merged
+class Specinfra::Backend::Base
+  def self.clear
+    @instance = nil
+  end
+end
+
 module AmiSpec
   class ServerSpec
     def initialize(options)
@@ -29,6 +36,8 @@ module AmiSpec
 
       RSpec::Core::Runner.disable_autorun!
       result = RSpec::Core::Runner.run(Dir.glob("#{@spec}/#{@role}/*_spec.rb"))
+
+      Specinfra::Backend::Ssh.clear
 
       result.zero?
     end

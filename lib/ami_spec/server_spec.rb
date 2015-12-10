@@ -3,6 +3,13 @@
 require 'rspec'
 require 'serverspec'
 
+# I hate Monkeys
+class Specinfra::Backend::Base
+  def self.clear
+    @instance = nil
+  end
+end
+
 module AmiSpec
   class ServerSpec
     def initialize(options)
@@ -21,9 +28,6 @@ module AmiSpec
       $LOAD_PATH.unshift(@spec) unless $LOAD_PATH.include?(@spec)
       require File.join(@spec, 'spec_helper')
 
-      # ServerSpec is caching a SSH connection between runs.
-      set :ssh, nil
-
       set :backend, :ssh
       set :host, @ip
       set :ssh_options, :user => @user, :keys => [@key_file], :paranoid => false
@@ -32,6 +36,8 @@ module AmiSpec
 
       RSpec::Core::Runner.disable_autorun!
       result = RSpec::Core::Runner.run(Dir.glob("#{@spec}/#{@role}/*_spec.rb"))
+
+      Specinfra::Backend::Ssh.clear
 
       result.zero?
     end

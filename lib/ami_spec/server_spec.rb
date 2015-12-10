@@ -3,6 +3,13 @@
 require 'rspec'
 require 'serverspec'
 
+# The Monkey Patch can be removed once https://github.com/mizzy/specinfra/pull/504 is merged
+class Specinfra::Backend::Base
+  def self.clear
+    @instance = nil
+  end
+end
+
 module AmiSpec
   class ServerSpec
     def initialize(options)
@@ -33,6 +40,8 @@ module AmiSpec
       # We can't use Rspec.clear_examples here because it also clears the shared_examples.
       # As shared examples are loaded in via the spec_helper, we cannot reload them.
       RSpec.world.example_groups.clear
+
+      Specinfra::Backend::Ssh.clear
 
       result.zero?
     end

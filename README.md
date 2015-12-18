@@ -70,3 +70,7 @@ Active and ready for Production
 ## Maintainers
 
 Patrick Robinson (@nemski)
+
+## License
+
+AmiSpec uses the MIT license. See [LICENSE.txt](./LICENSE.txt)

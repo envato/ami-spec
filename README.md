@@ -66,3 +66,7 @@ Alternative to the `--ami` and `--role` variables, a file of comma separated rol
 ## Development Status
 
 Active and ready for Production
+
+## Maintainers
+
+Patrick Robinson (@nemski)

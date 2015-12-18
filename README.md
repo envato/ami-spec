@@ -1,17 +1,17 @@
 # AmiSpec
 
-AmiSpec is a RubyGem used to spin up an Amazon Machine Image (AMI) and run ServerSpecs against it. It wraps around the AWS API and RSpec to spin up and tear down instances.
+AmiSpec is a RubyGem used to spin up an Amazon Machine Image (AMI) and run ServerSpecs against it. It wraps around the AWS API and RSpec to spin up, test and tear down instances.
 
 ## Project Goals
 
-To decouple the building of AMIs from testing them. Other approaches to this problem involve copying ServerSpec tests to an EC2 instance before it's converted to an AMI and running the tests there.
+1. To decouple the building of AMIs from testing them. Other approaches to this problem involve copying ServerSpec tests to an EC2 instance before it's converted to an AMI and running the tests there.
 The problem with this approach is:
 
-- It does not test the instance in the state it will be in when it's actually used in Production.
+- It does not test the instance in the state it will be in when it's actually in production.
 - It does makes it harder to replace the AMI builder software (i.e. [Packer](https://github.com/mitchellh/packer)).
-- It requires the software required to test the AMI exist in the AMI.
+- The software required to test the AMI must exist in the AMI.
 
-To run tests as fast as possible, this approach is slightly slower than the alternative listed above (about 1-2 minutes), but should not be onerous.
+2. To run tests as fast as possible; this approach is slightly slower than the alternative listed above (about 1-2 minutes), but should not be onerous.
 
 ## CLI Usage
 
@@ -47,5 +47,5 @@ $  bundle exec ami_spec \
 ```
 
 AmiSpec will launch an EC2 instance from the given AMI (`--ami`), in a subnet (`--subnet-id`) with a key-pair (`--key-name`)
-and try to SSH to it (`--ssh-user` and `--key-file`) for a given number of retries.
-When the instances becomes reachable it will run all Specs inside the `my_project/spec/web_server` directory.
+and try to SSH to it (`--ssh-user` and `--key-file`).
+When the instances becomes reachable it will run all Specs inside the role spec directory (`--role` i.e. `my_project/spec/web_server`).

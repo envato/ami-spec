@@ -49,3 +49,5 @@ $  bundle exec ami_spec \
 AmiSpec will launch an EC2 instance from the given AMI (`--ami`), in a subnet (`--subnet-id`) with a key-pair (`--key-name`)
 and try to SSH to it (`--ssh-user` and `--key-file`).
 When the instances becomes reachable it will run all Specs inside the role spec directory (`--role` i.e. `my_project/spec/web_server`).
+
+Alternative to the `--ami` and `--role` variables, a file of comma separated roles and AMIs (`ROLE,AMI\n`) can be supplied to `--role-ami-file`. 

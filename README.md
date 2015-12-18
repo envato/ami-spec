@@ -15,6 +15,15 @@ The problem with this approach is:
 
 2. To run tests as fast as possible; this approach is slightly slower than the alternative listed above (about 1-2 minutes), but should not be onerous.
 
+## Installation
+
+System-wide: gem install ami-spec
+
+With bundler:
+
+Add `gem 'ami-spec'` to your Gemfile.
+Run `bundle install`
+
 ## CLI Usage
 
 ```cli
@@ -53,3 +62,7 @@ and try to SSH to it (`--ssh-user` and `--key-file`).
 When the instances becomes reachable it will run all Specs inside the role spec directory (`--role` i.e. `my_project/spec/web_server`).
 
 Alternative to the `--ami` and `--role` variables, a file of comma separated roles and AMIs (`ROLE,AMI\n`) can be supplied to `--role-ami-file`. 
+
+## Development Status
+
+Active and ready for Production

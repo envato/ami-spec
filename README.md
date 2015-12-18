@@ -1,6 +1,8 @@
 # AmiSpec
 
-AmiSpec is a RubyGem used to spin up an Amazon Machine Image (AMI) and run ServerSpecs against it. It wraps around the AWS API and RSpec to spin up, test and tear down instances.
+Acceptance testing your AMIs.
+
+AmiSpec is a RubyGem used to launch an Amazon Machine Image (AMI) and run ServerSpecs against it. It wraps around the AWS API and ServerSpec to spin up, test and tear down instances.
 
 ## Project Goals
 

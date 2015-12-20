@@ -62,10 +62,18 @@ describe AmiSpec::AwsInstance do
     context 'with region' do
       let(:region) { 'us-east-1' }
 
-      it 'does include the region' do
+      it 'does include the region in the intial connection' do
         expect(Aws::EC2::Client).to receive(:new).with(
                                       hash_including(:region => region)
                                     )
+        start
+      end
+
+      it 'does include the region in the subsequent connection' do
+        expect(Aws::EC2::Instance).to receive(:new).with(
+                                        anything,
+                                        hash_including(:region => region)
+                                      )
         start
       end
     end

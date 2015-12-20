@@ -28,7 +28,7 @@ module AmiSpec
       client = Aws::EC2::Client.new(client_options)
       placeholder_instance = client.run_instances(instances_options).instances.first
 
-      @instance = Aws::EC2::Instance.new(placeholder_instance.instance_id)
+      @instance = Aws::EC2::Instance.new(placeholder_instance.instance_id, client_options)
       @instance.wait_until_running
       tag_instance
     end

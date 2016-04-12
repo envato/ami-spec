@@ -61,7 +61,29 @@ AmiSpec will launch an EC2 instance from the given AMI (`--ami`), in a subnet (`
 and try to SSH to it (`--ssh-user` and `--key-file`).
 When the instances becomes reachable it will run all Specs inside the role spec directory (`--role` i.e. `my_project/spec/web_server`).
 
-Alternative to the `--ami` and `--role` variables, a file of comma separated roles and AMIs (`ROLE,AMI\n`) can be supplied to `--role-ami-file`. 
+Alternative to the `--ami` and `--role` variables, a file of comma separated roles and AMIs (`ROLE,AMI\n`) can be supplied to `--role-ami-file`.
+
+## Known caveats
+
+[ServerSpecs advanced tips](http://serverspec.org/advanced_tips.html) provides a mechanism to conditionally apply tests based on server information.
+
+```ruby
+describe file('/usr/lib64'), :if => os[:arch] == 'x86_64' do
+  it { should be_directory }
+end
+```
+
+If these are used in shared examples, say loaded via a rspec helper, this doesn't work with AmiSpec, because the evaluation of `os[:arch] == 'x86_64'` is done when the spec is loaded not at run time.
+
+To get around this, we can make the conditional a procedure:
+
+```ruby
+describe file('/usr/lib64'), :if => proc { os[:arch] == 'x86_64' } do
+  it { should be_directory }
+end
+```
+
+Rspec will `call` the procedure at run time, avoiding an Exception being thrown at load time as no ssh options are defined.
 
 ## Development Status
 

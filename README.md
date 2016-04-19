@@ -61,7 +61,39 @@ AmiSpec will launch an EC2 instance from the given AMI (`--ami`), in a subnet (`
 and try to SSH to it (`--ssh-user` and `--key-file`).
 When the instances becomes reachable it will run all Specs inside the role spec directory (`--role` i.e. `my_project/spec/web_server`).
 
-Alternative to the `--ami` and `--role` variables, a file of comma separated roles and AMIs (`ROLE,AMI\n`) can be supplied to `--role-ami-file`. 
+Alternative to the `--ami` and `--role` variables, a file of comma separated roles and AMIs (`ROLE,AMI\n`) can be supplied to `--role-ami-file`.
+
+## Known caveats
+
+### RSpec conditions in examples
+
+[ServerSpecs advanced tips](http://serverspec.org/advanced_tips.html) provides a mechanism to conditionally apply tests based on server information.
+
+```ruby
+describe file('/usr/lib64'), :if => os[:arch] == 'x86_64' do
+  it { should be_directory }
+end
+```
+
+If these are used in shared examples, say loaded via a rspec helper, this doesn't work with AmiSpec, because the evaluation of `os[:arch] == 'x86_64'` is done when the spec is loaded not at run time.
+
+Working around this is tricky. We need to move the evaluation of `os[:arch]` to runtime not load time. Since RSpec example metadata can only be a bool, string or symbol we set a metadata key of `:os_arch` to the value we expect:
+
+```ruby
+describe file('/usr/lib64'), :os_arch => 'x86_64' do
+  it { should be_directory }
+end
+```
+
+We then have to set an RSpec exclusion of examples where the architecture does not match the host under test's architecture. This can be done in the `spec_helper` with a lambda function that tests this:
+
+```ruby
+RSpec.configure do |c|
+  c.filter_run_excluding :os_arch => lambda { |arch| arch if os[:arch] != arch }
+end
+```
+
+We are exluding any example with the metadata key :os_arch where the value does not match our architecture. Similar examples can be included for os family etc.
 
 ## Development Status
 

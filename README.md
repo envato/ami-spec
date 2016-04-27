@@ -17,11 +17,11 @@ The problem with this approach is:
 
 ## Installation
 
-System-wide: gem install ami-spec
+System-wide: gem install ami\_spec
 
 With bundler:
 
-Add `gem 'ami-spec'` to your Gemfile.
+Add `gem 'ami_spec'` to your Gemfile.
 Run `bundle install`
 
 ## CLI Usage

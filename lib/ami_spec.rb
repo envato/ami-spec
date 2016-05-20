@@ -97,7 +97,7 @@ module AmiSpec
       opt :ssh_retries, "The number of times we should try sshing to the ec2 instance before giving up. Defaults to 30",
           type: :int, default: 30
       opt :debug, "Don't terminate instances on exit"
-      opt :wait_for_rc, "Wait for oldschool SystemV scripts to run before conducting tests."
+      opt :wait_for_rc, "Wait for oldschool SystemV scripts to run before conducting tests. Currently only supports Ubuntu with upstart"
     end
 
     if options[:role] && options[:ami]

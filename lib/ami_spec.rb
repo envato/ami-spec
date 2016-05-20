@@ -3,6 +3,7 @@ require 'ami_spec/aws_instance_options'
 require 'ami_spec/server_spec'
 require 'ami_spec/server_spec_options'
 require 'ami_spec/wait_for_ssh'
+require 'ami_spec/wait_for_rc'
 require 'trollop'
 
 module AmiSpec

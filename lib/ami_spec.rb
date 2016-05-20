@@ -3,6 +3,7 @@ require 'ami_spec/aws_instance_options'
 require 'ami_spec/server_spec'
 require 'ami_spec/server_spec_options'
 require 'ami_spec/wait_for_ssh'
+require 'ami_spec/wait_for_rc'
 require 'trollop'
 
 module AmiSpec
@@ -50,6 +51,7 @@ module AmiSpec
     instances.each do |instance|
       ip_address = options[:aws_public_ip] ? instance.public_ip_address : instance.private_ip_address
       WaitForSSH.wait(ip_address, options[:ssh_user], options[:key_file], options[:ssh_retries])
+      WaitForRC.wait(ip_address, options[:ssh_user], options[:key_file]) if options[:wait_for_rc]
 
       server_spec_options = ServerSpecOptions.new(options.merge(instance: instance))
       results << ServerSpec.new(server_spec_options).run
@@ -95,6 +97,7 @@ module AmiSpec
       opt :ssh_retries, "The number of times we should try sshing to the ec2 instance before giving up. Defaults to 30",
           type: :int, default: 30
       opt :debug, "Don't terminate instances on exit"
+      opt :wait_for_rc, "Wait for oldschool SystemV scripts to run before conducting tests. Currently only supports Ubuntu with upstart"
     end
 
     if options[:role] && options[:ami]

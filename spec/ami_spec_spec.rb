@@ -51,4 +51,14 @@ describe AmiSpec do
       end
     end
   end
+
+  describe '#parse_tags' do
+    it 'parses a single key/value pair' do
+      expect(described_class.parse_tags("Name=AmiSpec")).to eq( { "Name"=>"AmiSpec" } )
+    end
+
+    it 'parses multiple key/value pairs' do
+      expect(described_class.parse_tags("Name=AmiSpec,Owner=Me")).to eq( { "Name"=>"AmiSpec", "Owner"=>"Me" } )
+    end
+  end
 end

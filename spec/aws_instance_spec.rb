@@ -7,6 +7,7 @@ describe AmiSpec::AwsInstance do
   let(:client_double) { instance_double(Aws::EC2::Client) }
   let(:new_ec2_double) { instance_double(Aws::EC2::Types::Instance) }
   let(:ec2_double) { instance_double(Aws::EC2::Instance) }
+  let(:tags) { {} }
   subject(:aws_instance) do
     described_class.new(
       role: role,
@@ -16,7 +17,8 @@ describe AmiSpec::AwsInstance do
       aws_instance_type: 't2.micro',
       aws_public_ip: false,
       aws_security_groups: sec_group_id,
-      aws_region: region
+      aws_region: region,
+      tags: tags
     )
   end
 
@@ -74,6 +76,17 @@ describe AmiSpec::AwsInstance do
                                         anything,
                                         hash_including(:region => region)
                                       )
+        start
+      end
+    end
+
+    context 'with tags' do
+      let(:tags) { {"Name" => "AmiSpec"} }
+
+      it 'tags the instance' do
+        expect(ec2_double).to receive(:create_tags).with(
+                                 {tags: [{ key: 'AmiSpec', value: role}, { key: "Name", value: "AmiSpec"}]}
+                               )
         start
       end
     end

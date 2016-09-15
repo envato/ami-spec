@@ -21,6 +21,12 @@ describe AmiSpec do
     )
   end
 
+  describe '#invoke' do
+    it 'raises a system exit with no arguments' do
+      expect{ described_class.invoke }.to raise_error(SystemExit)
+    end
+  end
+
   describe '#run' do
     before do
       allow(AmiSpec::WaitForSSH).to receive(:wait).and_return(true)

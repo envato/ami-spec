@@ -98,7 +98,7 @@ module AmiSpec
       opt :aws_public_ip, "Launch instances with a public IP"
       opt :ssh_retries, "The number of times we should try sshing to the ec2 instance before giving up. Defaults to 30",
           type: :int, default: 30
-      opt :tags, "Additional tags to add to launched instances in the form of comma separated key=value pairs. i.e. Name=AmiSpec", type: string, default: ""
+      opt :tags, "Additional tags to add to launched instances in the form of comma separated key=value pairs. i.e. Name=AmiSpec", type: :string, default: ""
       opt :debug, "Don't terminate instances on exit"
       opt :wait_for_rc, "Wait for oldschool SystemV scripts to run before conducting tests. Currently only supports Ubuntu with upstart"
     end

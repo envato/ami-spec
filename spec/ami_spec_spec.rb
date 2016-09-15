@@ -66,5 +66,9 @@ describe AmiSpec do
     it 'parses multiple key/value pairs' do
       expect(described_class.parse_tags("Name=AmiSpec,Owner=Me")).to eq( { "Name"=>"AmiSpec", "Owner"=>"Me" } )
     end
+
+    it 'parses an empty string' do
+      expect(described_class.parse_tags("")).to eq({})
+    end
   end
 end

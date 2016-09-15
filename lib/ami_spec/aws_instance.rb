@@ -20,7 +20,7 @@ module AmiSpec
       @public_ip = options.fetch(:aws_public_ip)
       @region = options.fetch(:aws_region)
       @security_group_ids = options.fetch(:aws_security_groups)
-      @tags = ec2ify_tags(options.fetch(:tags, {}))
+      @tags = ec2ify_tags(options.fetch(:tags))
     end
 
     def_delegators :@instance, :instance_id, :tags, :terminate, :private_ip_address, :public_ip_address

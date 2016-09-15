@@ -12,5 +12,6 @@ module AmiSpec
     property :aws_public_ip
     property :aws_region
     property :aws_security_groups
+    property :tags
   end
 end

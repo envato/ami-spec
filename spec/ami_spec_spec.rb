@@ -21,6 +21,12 @@ describe AmiSpec do
     )
   end
 
+  describe '#invoke' do
+    it 'raises a system exit with no arguments' do
+      expect{ described_class.invoke }.to raise_error(SystemExit)
+    end
+  end
+
   describe '#run' do
     before do
       allow(AmiSpec::WaitForSSH).to receive(:wait).and_return(true)
@@ -49,6 +55,20 @@ describe AmiSpec do
       it 'returns false' do
         expect(subject).to be_falsey
       end
+    end
+  end
+
+  describe '#parse_tags' do
+    it 'parses a single key/value pair' do
+      expect(described_class.parse_tags("Name=AmiSpec")).to eq( { "Name"=>"AmiSpec" } )
+    end
+
+    it 'parses multiple key/value pairs' do
+      expect(described_class.parse_tags("Name=AmiSpec,Owner=Me")).to eq( { "Name"=>"AmiSpec", "Owner"=>"Me" } )
+    end
+
+    it 'parses an empty string' do
+      expect(described_class.parse_tags("")).to eq({})
     end
   end
 end

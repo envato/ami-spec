@@ -116,6 +116,10 @@ module AmiSpec
       fail "You must specify either role and ami or role_ami_file"
     end
 
+    unless File.exist? options[:key_file]
+      fail "Key file #{options[:key_file]} not found"
+    end
+
     options[:tags] = parse_tags(options[:tags])
 
     exit run(options)

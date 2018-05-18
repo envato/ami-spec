@@ -13,5 +13,6 @@ module AmiSpec
     property :aws_region
     property :aws_security_groups
     property :tags
+    property :user_data_file
   end
 end

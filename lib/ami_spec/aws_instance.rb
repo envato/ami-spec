@@ -1,5 +1,6 @@
 require 'aws-sdk'
 require 'forwardable'
+require 'base64'
 
 module AmiSpec
   class AwsInstance
@@ -21,6 +22,7 @@ module AmiSpec
       @region = options.fetch(:aws_region)
       @security_group_ids = options.fetch(:aws_security_groups)
       @tags = ec2ify_tags(options.fetch(:tags))
+      @user_data_file = options.key?(:user_data_file) ? options.fetch(:user_data_file) : nil
     end
 
     def_delegators :@instance, :instance_id, :tags, :terminate, :private_ip_address, :public_ip_address
@@ -57,6 +59,8 @@ module AmiSpec
           subnet_id: @subnet_id,
         }]
       }
+
+      params[:user_data] = Base64.encode64(File.read(@user_data_file)) unless @user_data_file == nil
 
       unless @security_group_ids.nil?
         params[:network_interfaces][0][:groups] = @security_group_ids

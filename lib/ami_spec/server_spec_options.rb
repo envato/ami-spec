@@ -10,5 +10,6 @@ module AmiSpec
     property :key_file
     property :specs
     property :ssh_user
+    property :user_data_file
   end
 end

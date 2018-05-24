@@ -40,6 +40,8 @@ module AmiSpec
   #   Additional tags to add to launched instances in the form of comma separated key=value pairs
   # debug::
   #   Don't terminate the instances on exit
+  # buildkite::
+  #   Output section separators for buildkite
   # == Returns:
   # Boolean - The result of all the server specs.
   def self.run(options)
@@ -100,6 +102,7 @@ module AmiSpec
           type: :int, default: 30
       opt :tags, "Additional tags to add to launched instances in the form of comma separated key=value pairs. i.e. Name=AmiSpec", type: :string, default: ""
       opt :debug, "Don't terminate instances on exit"
+      opt :buildkite, "Output section separators for buildkite"
       opt :wait_for_rc, "Wait for oldschool SystemV scripts to run before conducting tests. Currently only supports Ubuntu with upstart"
     end
 

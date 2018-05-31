@@ -102,6 +102,7 @@ module AmiSpec
       opt :debug, "Don't terminate instances on exit"
       opt :wait_for_rc, "Wait for oldschool SystemV scripts to run before conducting tests. Currently only supports Ubuntu with upstart"
       opt :user_data_file, "File path for aws ec2 user data", type: :string
+      opt :iam_instance_profile_arn, "IAM instance profile to use", type: :string
     end
 
     if options[:role] && options[:ami]

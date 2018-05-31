@@ -14,5 +14,6 @@ module AmiSpec
     property :aws_security_groups
     property :tags
     property :user_data_file
+    property :iam_instance_profile_arn
   end
 end

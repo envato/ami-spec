@@ -23,6 +23,7 @@ module AmiSpec
       @security_group_ids = options.fetch(:aws_security_groups)
       @tags = ec2ify_tags(options.fetch(:tags))
       @user_data_file = options.key?(:user_data_file) ? options.fetch(:user_data_file) : nil
+      @iam_instance_profile_arn = options.key?(:iam_instance_profile_arn) ? options.fetch(:iam_instance_profile_arn) : nil
     end
 
     def_delegators :@instance, :instance_id, :tags, :terminate, :private_ip_address, :public_ip_address
@@ -60,7 +61,14 @@ module AmiSpec
         }]
       }
 
+      puts @user_data_file
       params[:user_data] = Base64.encode64(File.read(@user_data_file)) unless @user_data_file == nil
+
+      unless @iam_instance_profile_arn == nil
+        params[:iam_instance_profile] = {
+            arn: @iam_instance_profile_arn
+        }
+      end
 
       unless @security_group_ids.nil?
         params[:network_interfaces][0][:groups] = @security_group_ids

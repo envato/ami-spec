@@ -61,10 +61,9 @@ module AmiSpec
         }]
       }
 
-      puts @user_data_file
-      params[:user_data] = Base64.encode64(File.read(@user_data_file)) unless @user_data_file == nil
+      params[:user_data] = Base64.encode64(File.read(@user_data_file)) unless @user_data_file.nil?
 
-      unless @iam_instance_profile_arn == nil
+      unless @iam_instance_profile_arn.nil?
         params[:iam_instance_profile] = {
             arn: @iam_instance_profile_arn
         }

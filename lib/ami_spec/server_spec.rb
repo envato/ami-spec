@@ -15,8 +15,8 @@ module AmiSpec
       @spec = options.fetch(:specs)
       @user = options.fetch(:ssh_user)
       @key_file = options.fetch(:key_file)
-      @user_data_file= options.fetch(:user_data_file)
-      @iam_instance_profile_arn= options.fetch(:user_data_file)
+      @user_data_file = options.fetch(:user_data_file)
+      @iam_instance_profile_arn = options.fetch(:user_data_file)
     end
 
     def run

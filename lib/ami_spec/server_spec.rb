@@ -15,12 +15,17 @@ module AmiSpec
       @spec = options.fetch(:specs)
       @user = options.fetch(:ssh_user)
       @key_file = options.fetch(:key_file)
+      @buildkite = options.fetch(:buildkite)
       @user_data_file = options.fetch(:user_data_file)
       @iam_instance_profile_arn = options.fetch(:user_data_file)
     end
 
     def run
-      puts "Running tests for #{@role}"
+      if @buildkite
+        puts "--- Running tests for #{@role}"
+      else
+        puts "Running tests for #{@role}"
+      end
 
       $LOAD_PATH.unshift(@spec) unless $LOAD_PATH.include?(@spec)
       require File.join(@spec, 'spec_helper')
@@ -40,6 +45,7 @@ module AmiSpec
 
       Specinfra::Backend::Ssh.clear
 
+      puts "^^^ +++" if @buildkite && !result.zero?
       result.zero?
     end
   end

@@ -22,8 +22,8 @@ module AmiSpec
       @region = options.fetch(:aws_region)
       @security_group_ids = options.fetch(:aws_security_groups)
       @tags = ec2ify_tags(options.fetch(:tags))
-      @user_data_file = options.key?(:user_data_file) ? options.fetch(:user_data_file) : nil
-      @iam_instance_profile_arn = options.key?(:iam_instance_profile_arn) ? options.fetch(:iam_instance_profile_arn) : nil
+      @user_data_file = options.fetch(:user_data_file, nil)
+      @iam_instance_profile_arn = options.fetch(:iam_instance_profile_arn, nil)
     end
 
     def_delegators :@instance, :instance_id, :tags, :terminate, :private_ip_address, :public_ip_address

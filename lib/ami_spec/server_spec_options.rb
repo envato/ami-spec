@@ -10,5 +10,7 @@ module AmiSpec
     property :key_file
     property :specs
     property :ssh_user
+    property :user_data_file
+    property :iam_instance_profile_arn
   end
 end

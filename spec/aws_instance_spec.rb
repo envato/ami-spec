@@ -1,4 +1,6 @@
 require 'spec_helper'
+require 'base64'
+require 'tempfile'
 
 describe AmiSpec::AwsInstance do
   let(:role) { 'web_server' }
@@ -8,6 +10,9 @@ describe AmiSpec::AwsInstance do
   let(:new_ec2_double) { instance_double(Aws::EC2::Types::Instance) }
   let(:ec2_double) { instance_double(Aws::EC2::Instance) }
   let(:tags) { {} }
+  let(:iam_instance_profile_arn) { nil }
+  let(:user_data_file) { nil }
+
   subject(:aws_instance) do
     described_class.new(
       role: role,
@@ -18,7 +23,9 @@ describe AmiSpec::AwsInstance do
       aws_public_ip: false,
       aws_security_groups: sec_group_id,
       aws_region: region,
-      tags: tags
+      tags: tags,
+      user_data_file: user_data_file,
+      iam_instance_profile_arn: iam_instance_profile_arn
     )
   end
 
@@ -87,6 +94,33 @@ describe AmiSpec::AwsInstance do
         expect(ec2_double).to receive(:create_tags).with(
                                  {tags: [{ key: 'AmiSpec', value: role}, { key: "Name", value: "AmiSpec"}]}
                                )
+        start
+      end
+    end
+
+    context 'with user_data' do
+      let(:user_data_file) {
+        file = Tempfile.new('user_data.txt')
+        file.write("my file\ncontent")
+        file.close
+        file.path
+      }
+
+      it 'does include user_data' do
+        expect(client_double).to receive(:run_instances).with(
+            hash_including(:user_data =>  Base64.encode64("my file\ncontent"))
+        )
+        start
+      end
+    end
+
+    context 'with iam_instance_profile_arn' do
+      let(:iam_instance_profile_arn) { "my_arn" }
+
+      it 'does include iam_instance_profile_arn' do
+        expect(client_double).to receive(:run_instances).with(
+            hash_including(:iam_instance_profile =>  { arn: 'my_arn'})
+        )
         start
       end
     end

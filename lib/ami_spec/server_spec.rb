@@ -16,6 +16,8 @@ module AmiSpec
       @user = options.fetch(:ssh_user)
       @key_file = options.fetch(:key_file)
       @buildkite = options.fetch(:buildkite)
+      @user_data_file = options.fetch(:user_data_file)
+      @iam_instance_profile_arn = options.fetch(:user_data_file)
     end
 
     def run

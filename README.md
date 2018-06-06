@@ -29,32 +29,34 @@ Run `bundle install`
 ```cli
 $ bundle exec ami_spec --help
 Options:
-  -r, --role=<s>                    The role to test, this should map to a directory in the spec folder
-  -a, --ami=<s>                     The ami ID to run tests against
-  -o, --role-ami-file=<s>           A file containing comma separated roles and amis. i.e.
-                                    web_server,ami-id.
-  -s, --specs=<s>                   The directory to find ServerSpecs
-  -u, --subnet-id=<s>               The subnet to start the instance in
-  -k, --key-name=<s>                The SSH key name to assign to instances
-  -e, --key-file=<s>                The SSH private key file associated to the key_name
-  -h, --ssh-user=<s>                The user to ssh to the instance as
-  -w, --aws-region=<s>              The AWS region, defaults to AWS_DEFAULT_REGION environment variable
-  -i, --aws-instance-type=<s>       The ec2 instance type, defaults to t2.micro (default: t2.micro)
-  -c, --aws-security-groups=<s+>    Security groups to associate to the launched instances. May be specified
-                                    multiple times
-  -p, --aws-public-ip               Launch instances with a public IP
-  -t, --ssh-retries=<i>             The number of times we should try sshing to the ec2 instance before
-                                    giving up. Defaults to 30 (default: 30)
-  -d, --debug                       Don't terminate instances on exit
-  -l, --help                        Show this message
-$  bundle exec ami_spec \
---role web_server \
---ami ami-12345678 \
---subnet-id subnet-abcdefgh \
---key-name ec2-key-pair \
---key-file ~/.ssh/ec2-key-pair.pem \
---ssh-user ubuntu \
---specs ./my_project/spec
+  -r, --role=<s>                        The role to test, this should map to a directory in the spec
+                                        folder
+  -a, --ami=<s>                         The ami ID to run tests against
+  -o, --role-ami-file=<s>               A file containing comma separated roles and amis. i.e.
+                                        web_server,ami-id.
+  -s, --specs=<s>                       The directory to find ServerSpecs
+  -u, --subnet-id=<s>                   The subnet to start the instance in
+  -k, --key-name=<s>                    The SSH key name to assign to instances
+  -e, --key-file=<s>                    The SSH private key file associated to the key_name
+  -h, --ssh-user=<s>                    The user to ssh to the instance as
+  -w, --aws-region=<s>                  The AWS region, defaults to AWS_DEFAULT_REGION environment
+                                        variable
+  -i, --aws-instance-type=<s>           The ec2 instance type, defaults to t2.micro (default:
+                                        t2.micro)
+  -c, --aws-security-groups=<s+>        Security groups to associate to the launched instances. May be
+                                        specified multiple times
+  -p, --aws-public-ip                   Launch instances with a public IP
+  -t, --ssh-retries=<i>                 The number of times we should try sshing to the ec2 instance
+                                        before giving up. Defaults to 30 (default: 30)
+  -g, --tags=<s>                        Additional tags to add to launched instances in the form of
+                                        comma separated key=value pairs. i.e. Name=AmiSpec (default: )
+  -d, --debug                           Don't terminate instances on exit
+  -f, --wait-for-rc                     Wait for oldschool SystemV scripts to run before conducting
+                                        tests. Currently only supports Ubuntu with upstart
+  -l, --user-data-file=<s>              File path for aws ec2 user data
+  -m, --iam-instance-profile-arn=<s>    IAM instance profile to use
+  --help                                Show this message
+
 ```
 
 AmiSpec will launch an EC2 instance from the given AMI (`--ami`), in a subnet (`--subnet-id`) with a key-pair (`--key-name`)

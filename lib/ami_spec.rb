@@ -104,7 +104,7 @@ module AmiSpec
       opt :debug, "Don't terminate instances on exit"
       opt :buildkite, "Output section separators for buildkite"
       opt :wait_for_rc, "Wait for oldschool SystemV scripts to run before conducting tests. Currently only supports Ubuntu with upstart"
-      opt :user_data_file, "File path for aws ec2 user data", type: :string
+      opt :user_data_file, "File path for aws ec2 user data", type: :string, default: nil
       opt :iam_instance_profile_arn, "IAM instance profile to use", type: :string
     end
 
@@ -125,7 +125,7 @@ module AmiSpec
       fail "Key file #{options[:key_file]} not found"
     end
 
-    unless options[:user_data_file] and File.exist? options[:user_data_file]
+    if options[:user_data_file] and !File.exist? options[:user_data_file]
       fail "User Data file #{options[:user_data_file]} not found"
     end
 

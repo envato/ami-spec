@@ -110,9 +110,23 @@ For bug fixes, documentation changes, and small features:
 4. Push to the branch (git push origin my-new-feature)
 5. Create a new Pull Request
 
+## Running tests
+
+Use the following command to run non-integration tests:
+```
+bundle exec rake spec
+```
+
+If you're working on the `WaitForRC` feature you can run it's integration tests by first bringing up the containers, then executing the integration tests:
+```
+docker-compose -f spec/containers/docker-compose.yml up -d
+bundle exec rspec . --tag integration
+docker-compose -f spec/containers/docker-compose.yml down
+```
+
 ## Maintainers
 
-Patrick Robinson (@nemski)
+Patrick Robinson (@patrobinson)
 
 ## License
 

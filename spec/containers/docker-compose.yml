@@ -1,0 +1,28 @@
+version: '3'
+services:
+  xenial:
+    build:
+      context: .
+      dockerfile: Dockerfile.xenial
+    ports:
+      - "1122:22"
+    # --security-opt seccomp=unconfined --tmpfs /run --tmpfs /run/lock -v /sys/fs/cgroup:/sys/fs/cgroup:ro
+    security_opt:
+      - seccomp:unconfined
+    tmpfs:
+      - /run
+      - /run/lock
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+  trusty:
+    build:
+      context: .
+      dockerfile: Dockerfile.trusty
+    ports:
+      - "1123:22"
+  amazon_linux:
+    build:
+      context: .
+      dockerfile: Dockerfile.amazon_linux
+    ports:
+      - "1124:22"

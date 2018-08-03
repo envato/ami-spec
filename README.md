@@ -114,7 +114,7 @@ For bug fixes, documentation changes, and small features:
 
 Use the following command to run non-integration tests:
 ```
-bundle exec rspec . --tag ~integration
+bundle exec rake spec
 ```
 
 If you're working on the `WaitForRC` feature you can run it's integration tests by first bringing up the containers, then executing the integration tests:

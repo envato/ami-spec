@@ -23,5 +23,5 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'specinfra', '>= 2.45'
   gem.add_dependency 'optimist'
   gem.add_dependency 'hashie'
-  gem.add_dependency 'net-ssh', '< 3.0'
+  gem.add_dependency 'net-ssh', '~> 5'
 end

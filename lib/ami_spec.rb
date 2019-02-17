@@ -96,7 +96,7 @@ module AmiSpec
       opt :aws_region, "The AWS region, defaults to AWS_DEFAULT_REGION environment variable", type: :string
       opt :aws_instance_type, "The ec2 instance type, defaults to t2.micro", type: :string, default: 't2.micro'
       opt :aws_security_groups, "Security groups to associate to the launched instances. May be specified multiple times",
-          type: :strings, default: nil
+          type: :string, default: nil, multi: true
       opt :aws_public_ip, "Launch instances with a public IP"
       opt :ssh_retries, "The number of times we should try sshing to the ec2 instance before giving up. Defaults to 30",
           type: :int, default: 30

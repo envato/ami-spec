@@ -28,7 +28,11 @@ module AmiSpec
       end
 
       $LOAD_PATH.unshift(@spec) unless $LOAD_PATH.include?(@spec)
-      require File.join(@spec, 'spec_helper')
+      begin
+        require File.join(@spec, 'spec_helper')
+      rescue LoadError
+        puts 'Spec Helper does not exist. Skipping!'
+      end
 
       set :backend, :ssh
       set :host, @ip

@@ -17,11 +17,11 @@ Gem::Specification.new do |gem|
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.require_paths = ['lib']
 
-  gem.add_dependency 'aws-sdk-ec2'
-  gem.add_dependency 'rake'
-  gem.add_dependency 'serverspec'
+  gem.add_dependency 'aws-sdk-ec2', '~> 1'
+  gem.add_development_dependency 'rake'
+  gem.add_dependency 'serverspec', '~> 2'
   gem.add_dependency 'specinfra', '>= 2.45'
-  gem.add_dependency 'trollop'
+  gem.add_dependency 'optimist', '~> 3'
   gem.add_dependency 'hashie'
-  gem.add_dependency 'net-ssh', '< 3.0'
+  gem.add_dependency 'net-ssh', '~> 5'
 end

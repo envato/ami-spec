@@ -4,7 +4,7 @@ require 'ami_spec/server_spec'
 require 'ami_spec/server_spec_options'
 require 'ami_spec/wait_for_ssh'
 require 'ami_spec/wait_for_rc'
-require 'trollop'
+require 'optimist'
 
 module AmiSpec
   class InstanceConnectionTimeout < StandardError; end
@@ -83,7 +83,7 @@ module AmiSpec
   private_class_method :stop_instances
 
   def self.invoke
-    options = Trollop::options do
+    options = Optimist::options do
       opt :role, "The role to test, this should map to a directory in the spec folder", type: :string
       opt :ami, "The ami ID to run tests against", type: :string
       opt :role_ami_file, "A file containing comma separated roles and amis. i.e.\nweb_server,ami-id.",

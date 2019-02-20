@@ -29,7 +29,7 @@ module AmiSpec
 
       unless Dir.exist?("#{@spec}/#{@role}")
         puts "WARNING: Role directory #{@spec}/#{@role} does not exist. If you'd like to"
-        puts "skip the role '#{role}', create the directory but leave it empty"
+        puts "skip the role '#{@role}', create the directory but leave it empty"
         puts "(except for a .gitkeep file)."
         return false
       end

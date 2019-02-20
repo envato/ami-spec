@@ -131,6 +131,12 @@ module AmiSpec
 
     options[:tags] = parse_tags(options[:tags])
 
+    options[:amis].each_pair do |role, _|
+      unless Dir.exist?("#{options[:specs]}/#{role}")
+        fail "Role directory #{options[:specs]}/#{role} does not exist. If you'd like to skip the role '#{role}', create the directory but leave it empty (except for a .gitignore file)."
+      end
+    end
+
     exit run(options)
   end
 

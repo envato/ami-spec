@@ -27,13 +27,6 @@ module AmiSpec
         puts "Running tests for #{@role}"
       end
 
-      unless Dir.exist?("#{@spec}/#{@role}")
-        puts "WARNING: Role directory #{@spec}/#{@role} does not exist. If you'd like to"
-        puts "skip the role '#{@role}', create the directory but leave it empty"
-        puts "(except for a .gitkeep file)."
-        return false
-      end
-
       $LOAD_PATH.unshift(@spec) unless $LOAD_PATH.include?(@spec)
       begin
         require File.join(@spec, 'spec_helper')
@@ -46,7 +39,6 @@ module AmiSpec
       set :ssh_options, :user => @user, :keys => [@key_file], :paranoid => false
 
       RSpec.configuration.fail_fast = true if @debug
-
 
       RSpec::Core::Runner.disable_autorun!
       result = RSpec::Core::Runner.run(Dir.glob("#{@spec}/#{@role}/*_spec.rb"))

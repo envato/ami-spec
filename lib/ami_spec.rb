@@ -6,6 +6,7 @@ require 'ami_spec/server_spec_options'
 require 'ami_spec/wait_for_ssh'
 require 'ami_spec/wait_for_rc'
 require 'optimist'
+require 'logger'
 
 module AmiSpec
   class InstanceConnectionTimeout < StandardError; end
@@ -46,10 +47,12 @@ module AmiSpec
   # == Returns:
   # Boolean - The result of all the server specs.
   def self.run(options)
+    logger = Logger.new(STDOUT, formatter: proc { |_sev, _time, _name, message| "#{message}\n" })
+
     ec2 = Aws::EC2::Resource.new(options[:aws_region] ? {region: options[:aws_region]} : {})
 
     unless options[:key_name]
-      key_pair = AwsKeyPair.create(ec2: ec2)
+      key_pair = AwsKeyPair.create(ec2: ec2, logger: logger)
       options[:key_name] = key_pair.key_name
       options[:key_file] = key_pair.key_file
     end

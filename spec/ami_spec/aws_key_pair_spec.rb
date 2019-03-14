@@ -1,11 +1,12 @@
 require 'spec_helper'
 
 describe AmiSpec::AwsKeyPair do
-  subject(:aws_key_pair) { described_class.create(ec2: ec2) }
+  subject(:aws_key_pair) { described_class.create(ec2: ec2, logger: logger) }
 
   let(:ec2) { instance_spy(Aws::EC2::Resource, create_key_pair: key_pair) }
   let(:key_pair) { instance_spy(Aws::EC2::KeyPair, key_material: key_material) }
   let(:key_material) { 'test-key-material' }
+  let(:logger) { instance_spy(Logger) }
 
   describe '#create' do
     subject(:create) { aws_key_pair }
@@ -13,6 +14,11 @@ describe AmiSpec::AwsKeyPair do
     it 'creates the key pair in AWS' do
       create
       expect(ec2).to have_received(:create_key_pair).with(key_name: aws_key_pair.key_name)
+    end
+
+    it 'logs the creation of the key pair in AWS' do
+      create
+      expect(logger).to have_received(:info).with "Creating temporary AWS key pair: #{aws_key_pair.key_name}"
     end
   end
 
@@ -40,6 +46,11 @@ describe AmiSpec::AwsKeyPair do
     it 'deletes the key pair in AWS' do
       delete
       expect(key_pair).to have_received(:delete)
+    end
+
+    it 'logs the deletion of the key pair in AWS' do
+      delete
+      expect(logger).to have_received(:info).with "Deleting temporary AWS key pair: #{aws_key_pair.key_name}"
     end
   end
 end

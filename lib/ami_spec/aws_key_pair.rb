@@ -22,7 +22,7 @@ module AmiSpec
     def create
       @logger.info "Creating temporary AWS key pair: #{@key_name}"
       @key_pair = @ec2.create_key_pair(key_name: @key_name)
-      @temp_file = Tempfile.new
+      @temp_file = Tempfile.new('key')
       @temp_file.write(@key_pair.key_material)
       @temp_file.close
       @key_file = Pathname.new(@temp_file.path)

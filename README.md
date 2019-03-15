@@ -36,7 +36,6 @@ Options:
                                         web_server,ami-id.
   -s, --specs=<s>                       The directory to find ServerSpecs
   -u, --subnet-id=<s>                   The subnet to start the instance in
-  -k, --key-name=<s>                    The SSH key name to assign to instances
   -k, --key-name=<s>                    The SSH key name to assign to instances. If not provided a
                                         temporary key pair will be generated in AWS
   -e, --key-file=<s>                    The SSH private key file associated to the key_name

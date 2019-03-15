@@ -3,7 +3,7 @@ require 'net/ssh'
 module AmiSpec
   class WaitForRC
     def self.wait(ip_address, user, key, port=22)
-      Net::SSH.start(ip_address, user, keys: [key], paranoid: false, port: port) do |ssh|
+      Net::SSH.start(ip_address, user, keys: [key], :verify_host_key => :never, port: port) do |ssh|
         distrib_stdout = ""
         # Determine the OS family
         ssh.exec!("source /etc/*release && echo -n $DISTRIB_ID && echo -n $ID") do |channel, stream, data|

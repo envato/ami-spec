@@ -135,9 +135,7 @@ module AmiSpec
       fail "You must specify either role and ami or role_ami_file"
     end
 
-    unless File.exist? options[:key_file]
-      fail "Key file #{options[:key_file]} not found"
-    end
+    fail "Key file #{options[:key_file]} not found" if options[:key_name] && !File.exist?(options.fetch(:key_file))
 
     if options[:user_data_file] and !File.exist? options[:user_data_file]
       fail "User Data file #{options[:user_data_file]} not found"

@@ -1,10 +1,12 @@
 require 'ami_spec/aws_instance'
 require 'ami_spec/aws_instance_options'
+require 'ami_spec/aws_key_pair'
 require 'ami_spec/server_spec'
 require 'ami_spec/server_spec_options'
 require 'ami_spec/wait_for_ssh'
 require 'ami_spec/wait_for_rc'
 require 'optimist'
+require 'logger'
 
 module AmiSpec
   class InstanceConnectionTimeout < StandardError; end
@@ -19,7 +21,7 @@ module AmiSpec
   # subnet_id::
   #   The subnet_id to start instances in.
   # key_name::
-  #   The SSH key name to assign to instances. This key name must exist on the executing host for passwordless login.
+  #   The SSH key name to assign to instances. If not provided a temporary key pair will be generated in AWS
   # key_file::
   #   The SSH key file to use to connect to the host.
   # aws_region::
@@ -45,6 +47,16 @@ module AmiSpec
   # == Returns:
   # Boolean - The result of all the server specs.
   def self.run(options)
+    logger = Logger.new(STDOUT, formatter: proc { |_sev, _time, _name, message| "#{message}\n" })
+
+    ec2 = Aws::EC2::Resource.new(options[:aws_region] ? {region: options[:aws_region]} : {})
+
+    unless options[:key_name]
+      key_pair = AwsKeyPair.create(ec2: ec2, logger: logger)
+      options[:key_name] = key_pair.key_name
+      options[:key_file] = key_pair.key_file
+    end
+
     instances = []
     options[:amis].each_pair do |role, ami|
       aws_instance_options = AwsInstanceOptions.new(options.merge(role: role, ami: ami))
@@ -64,6 +76,7 @@ module AmiSpec
     results.all?
   ensure
     stop_instances(instances, options[:debug])
+    key_pair.delete if key_pair
   end
 
   def self.stop_instances(instances, debug)
@@ -90,8 +103,9 @@ module AmiSpec
           type: :string
       opt :specs, "The directory to find ServerSpecs", type: :string, required: true
       opt :subnet_id, "The subnet to start the instance in", type: :string, required: true
-      opt :key_name, "The SSH key name to assign to instances", type: :string, required: true
-      opt :key_file, "The SSH private key file associated to the key_name", type: :string, required: true
+      opt :key_name, "The SSH key name to assign to instances. If not provided a temporary key pair will be generated in AWS",
+          type: :string
+      opt :key_file, "The SSH private key file associated to the key_name", type: :string
       opt :ssh_user, "The user to ssh to the instance as", type: :string, required: true
       opt :aws_region, "The AWS region, defaults to AWS_DEFAULT_REGION environment variable", type: :string
       opt :aws_instance_type, "The ec2 instance type, defaults to t2.micro", type: :string, default: 't2.micro'
@@ -121,9 +135,7 @@ module AmiSpec
       fail "You must specify either role and ami or role_ami_file"
     end
 
-    unless File.exist? options[:key_file]
-      fail "Key file #{options[:key_file]} not found"
-    end
+    fail "Key file #{options[:key_file]} not found" if options[:key_name] && !File.exist?(options.fetch(:key_file))
 
     if options[:user_data_file] and !File.exist? options[:user_data_file]
       fail "User Data file #{options[:user_data_file]} not found"

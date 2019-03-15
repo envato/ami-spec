@@ -2,16 +2,19 @@ require 'spec_helper'
 
 describe AmiSpec do
   let(:amis) { {'web_server' => 'ami-1234abcd', 'db_server' => 'ami-1234abcd'} }
+  let(:ec2) { instance_spy(Aws::EC2::Resource) }
   let(:ec2_double) { instance_double(AmiSpec::AwsInstance) }
+  let(:aws_key_pair) { instance_spy(AmiSpec::AwsKeyPair) }
   let(:state) { double(name: 'running') }
   let(:test_result) { true }
   let(:server_spec_double) { double(run: test_result) }
+  let(:key_name) { 'key' }
   subject do
     described_class.run(
       amis: amis,
       specs: '/tmp/foobar',
       subnet_id: 'subnet-1234abcd',
-      key_name: 'key',
+      key_name: key_name,
       key_file: 'key.pem',
       aws_public_ip: false,
       aws_instance_type: 't2.micro',
@@ -20,6 +23,7 @@ describe AmiSpec do
       ssh_retries: 30,
     )
   end
+
 
   describe '#invoke' do
     it 'raises a system exit with no arguments' do
@@ -32,6 +36,8 @@ describe AmiSpec do
       allow(AmiSpec::WaitForSSH).to receive(:wait).and_return(true)
       allow(AmiSpec::AwsInstance).to receive(:start).and_return(ec2_double)
       allow(AmiSpec::ServerSpec).to receive(:new).and_return(server_spec_double)
+      allow(AmiSpec::AwsKeyPair).to receive(:create).and_return(aws_key_pair)
+      allow(Aws::EC2::Resource).to receive(:new).and_return(ec2)
       allow(ec2_double).to receive(:terminate).and_return(true)
       allow(ec2_double).to receive(:private_ip_address).and_return('127.0.0.1')
       allow_any_instance_of(Object).to receive(:sleep)
@@ -54,6 +60,29 @@ describe AmiSpec do
 
       it 'returns false' do
         expect(subject).to be_falsey
+      end
+    end
+
+    context 'given a key name is not provided' do
+      let(:key_name) { nil }
+
+      it 'creates a key pair' do
+        subject
+        expect(AmiSpec::AwsKeyPair).to have_received(:create)
+      end
+
+      it 'deletes the key pair' do
+        subject
+        expect(aws_key_pair).to have_received(:delete)
+      end
+    end
+
+    context 'given a key name is provided' do
+      let(:key_name) { 'key' }
+
+      it 'does not create a key pair' do
+        subject
+        expect(AmiSpec::AwsKeyPair).not_to have_received(:create)
       end
     end
   end

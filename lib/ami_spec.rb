@@ -1,6 +1,7 @@
 require 'ami_spec/aws_instance'
 require 'ami_spec/aws_instance_options'
 require 'ami_spec/aws_key_pair'
+require 'ami_spec/aws_security_group'
 require 'ami_spec/server_spec'
 require 'ami_spec/server_spec_options'
 require 'ami_spec/wait_for_ssh'
@@ -29,7 +30,7 @@ module AmiSpec
   #   Defaults to AWS_DEFAULT_REGION
   # aws_security_group_ids::
   #   AWS Security groups to assign to the instances
-  #   Defaults to the default security group for the VPC
+  #   If not provided a temporary security group will be generated in AWS
   # aws_instance_type::
   #   AWS ec2 instance type
   # aws_public_ip::
@@ -57,6 +58,11 @@ module AmiSpec
       options[:key_file] = key_pair.key_file
     end
 
+    if options[:aws_security_groups].nil? || options[:aws_security_groups].empty?
+      security_group = AwsSecurityGroup.create(ec2: ec2, subnet_id: options[:subnet_id], logger: logger)
+      options[:aws_security_groups] = [security_group.group_id]
+    end
+
     instances = []
     options[:amis].each_pair do |role, ami|
       aws_instance_options = AwsInstanceOptions.new(options.merge(role: role, ami: ami))
@@ -77,6 +83,7 @@ module AmiSpec
   ensure
     stop_instances(instances, options[:debug])
     key_pair.delete if key_pair
+    security_group.delete if security_group
   end
 
   def self.stop_instances(instances, debug)
@@ -109,7 +116,7 @@ module AmiSpec
       opt :ssh_user, "The user to ssh to the instance as", type: :string, required: true
       opt :aws_region, "The AWS region, defaults to AWS_DEFAULT_REGION environment variable", type: :string
       opt :aws_instance_type, "The ec2 instance type, defaults to t2.micro", type: :string, default: 't2.micro'
-      opt :aws_security_groups, "Security groups to associate to the launched instances. May be specified multiple times",
+      opt :aws_security_groups, "Security groups to associate to the launched instances. May be specified multiple times. If not provided a temporary security group will be generated in AWS",
           type: :string, default: nil, multi: true
       opt :aws_public_ip, "Launch instances with a public IP"
       opt :ssh_retries, "The number of times we should try sshing to the ec2 instance before giving up. Defaults to 30",

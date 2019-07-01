@@ -13,13 +13,11 @@ module AmiSpec
     def initialize(ec2: Aws::EC2::Resource.new,
                    group_name_prefix: "ami-spec-",
                    connection_port: 22,
-                   vpc_id: nil,
-                   subnet_id: nil,
+                   subnet_id:,
                    logger: Logger.new(STDOUT))
       @ec2 = ec2
       @group_name = "#{group_name_prefix}#{SecureRandom.uuid}"
       @connection_port = connection_port
-      @vpc_id = vpc_id
       @subnet_id = subnet_id
       @logger = logger
     end

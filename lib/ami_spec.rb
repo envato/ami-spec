@@ -59,8 +59,8 @@ module AmiSpec
     end
 
     if options[:aws_security_groups].nil? || options[:aws_security_groups].empty?
-      security_group = AwsSecurityGroup.create(ec2: ec2, subnet_id: options[:subnet_id], logger: logger)
-      options[:aws_security_groups] = [security_group.group_id]
+      temporary_security_group = AwsSecurityGroup.create(ec2: ec2, subnet_id: options[:subnet_id], logger: logger)
+      options[:aws_security_groups] = [temporary_security_group.group_id]
     end
 
     instances = []
@@ -83,7 +83,7 @@ module AmiSpec
   ensure
     stop_instances(instances, options[:debug])
     key_pair.delete if key_pair
-    security_group.delete if security_group
+    temporary_security_group.delete if temporary_security_group
   end
 
   def self.stop_instances(instances, debug)

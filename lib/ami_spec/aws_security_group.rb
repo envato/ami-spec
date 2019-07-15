@@ -14,11 +14,13 @@ module AmiSpec
                    group_name_prefix: "ami-spec-",
                    connection_port: 22,
                    subnet_id:,
+                   allow_any_ip: false,
                    logger: Logger.new(STDOUT))
       @ec2 = ec2
       @group_name = "#{group_name_prefix}#{SecureRandom.uuid}"
       @connection_port = connection_port
       @subnet_id = subnet_id
+      @allow_any_ip = allow_any_ip
       @logger = logger
     end
 
@@ -42,7 +44,7 @@ module AmiSpec
       @security_group = @ec2.create_security_group(
         group_name: @group_name,
         description: "A temporary security group for running AmiSpec",
-        vpc_id: vpc_id,
+        vpc_id: subnet.vpc_id,
       )
     end
 
@@ -53,14 +55,18 @@ module AmiSpec
             ip_protocol: "tcp",
             from_port: @connection_port,
             to_port: @connection_port,
-            ip_ranges: [{cidr_ip: "0.0.0.0/0"}],
+            ip_ranges: [{cidr_ip: cidr_block}],
           },
         ],
       )
     end
 
-    def vpc_id
-      @vpc_id ||= @ec2.subnet(@subnet_id).vpc_id
+    def cidr_block
+      @allow_any_ip ? "0.0.0.0/0" : subnet.cidr_block
+    end
+
+    def subnet
+      @subnet ||= @ec2.subnet(@subnet_id)
     end
   end
 end

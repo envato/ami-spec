@@ -11,11 +11,13 @@ describe AmiSpec do
   let(:server_spec_double) { double(run: test_result) }
   let(:key_name) { 'key' }
   let(:security_groups) { ['sg-1234'] }
+  let(:subnet_id) { 'subnet-1234abcd' }
+  let(:allow_any_temporary_security_group) { false }
   subject do
     described_class.run(
       amis: amis,
       specs: '/tmp/foobar',
-      subnet_id: 'subnet-1234abcd',
+      subnet_id: subnet_id,
       key_name: key_name,
       key_file: 'key.pem',
       aws_public_ip: false,
@@ -24,6 +26,7 @@ describe AmiSpec do
       debug: false,
       ssh_retries: 30,
       aws_security_groups: security_groups,
+      allow_any_temporary_security_group: allow_any_temporary_security_group,
     )
   end
 
@@ -96,6 +99,32 @@ describe AmiSpec do
       it 'creates a temporary security group' do
         subject
         expect(AmiSpec::AwsSecurityGroup).to have_received(:create)
+      end
+
+      it 'passes the subnet id' do
+        subject
+        expect(AmiSpec::AwsSecurityGroup).to have_received(:create)
+          .with(a_hash_including(subnet_id: subnet_id))
+      end
+
+      context 'given allow_any_temporary_security_group: true' do
+        let(:allow_any_temporary_security_group) { true }
+
+        it 'passes allow_any_ip: true' do
+          subject
+          expect(AmiSpec::AwsSecurityGroup).to have_received(:create)
+            .with(a_hash_including(allow_any_ip: true))
+        end
+      end
+
+      context 'given allow_any_temporary_security_group: false' do
+        let(:allow_any_temporary_security_group) { false }
+
+        it 'passes allow_any_ip: true' do
+          subject
+          expect(AmiSpec::AwsSecurityGroup).to have_received(:create)
+            .with(a_hash_including(allow_any_ip: false))
+        end
       end
 
       it 'deletes the temporary security group' do

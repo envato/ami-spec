@@ -31,6 +31,8 @@ module AmiSpec
   # aws_security_group_ids::
   #   AWS Security groups to assign to the instances
   #   If not provided a temporary security group will be generated in AWS
+  # allow_any_temporary_security_group::
+  #   The temporary security group will allow SSH connections from any IP address (0.0.0.0/0)
   # aws_instance_type::
   #   AWS ec2 instance type
   # aws_public_ip::
@@ -59,7 +61,12 @@ module AmiSpec
     end
 
     if options[:aws_security_groups].nil? || options[:aws_security_groups].empty?
-      temporary_security_group = AwsSecurityGroup.create(ec2: ec2, subnet_id: options[:subnet_id], logger: logger)
+      temporary_security_group = AwsSecurityGroup.create(
+        ec2: ec2,
+        subnet_id: options[:subnet_id],
+        allow_any_ip: options[:allow_any_temporary_security_group],
+        logger: logger
+      )
       options[:aws_security_groups] = [temporary_security_group.group_id]
     end
 
@@ -118,6 +125,7 @@ module AmiSpec
       opt :aws_instance_type, "The ec2 instance type, defaults to t2.micro", type: :string, default: 't2.micro'
       opt :aws_security_groups, "Security groups to associate to the launched instances. May be specified multiple times. If not provided a temporary security group will be generated in AWS",
           type: :string, default: nil, multi: true
+      opt :allow_any_temporary_security_group, "The temporary security group will allow SSH connections from any IP address (0.0.0.0/0)"
       opt :aws_public_ip, "Launch instances with a public IP"
       opt :ssh_retries, "The number of times we should try sshing to the ec2 instance before giving up. Defaults to 30",
           type: :int, default: 30

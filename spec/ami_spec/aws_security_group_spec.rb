@@ -1,14 +1,23 @@
 require 'spec_helper'
 
 describe AmiSpec::AwsSecurityGroup do
-  subject(:aws_security_group) { described_class.create(ec2: ec2, subnet_id: test_subnet_id, logger: logger) }
+  subject(:aws_security_group) do
+    described_class.create(
+      ec2: ec2,
+      subnet_id: test_subnet_id,
+      allow_any_ip: allow_any_ip,
+      logger: logger
+    )
+  end
 
   let(:ec2) { instance_spy(Aws::EC2::Resource, create_security_group: security_group, subnet: subnet) }
   let(:security_group) { instance_spy(Aws::EC2::SecurityGroup, group_id: test_group_id) }
-  let(:subnet) { instance_spy(Aws::EC2::Subnet, vpc_id: test_vpc_id) }
+  let(:subnet) { instance_spy(Aws::EC2::Subnet, vpc_id: test_vpc_id, cidr_block: test_cidr_block) }
   let(:test_subnet_id) { 'test-subnet-id' }
   let(:test_group_id) { 'test-group-id' }
   let(:test_vpc_id) { 'test-vpc-id' }
+  let(:test_cidr_block) { '172.16.0.0/24' }
+  let(:allow_any_ip) { false }
   let(:logger) { instance_spy(Logger) }
 
   describe '#create' do
@@ -19,11 +28,26 @@ describe AmiSpec::AwsSecurityGroup do
       expect(ec2).to have_received(:create_security_group).with(group_name: aws_security_group.group_name, vpc_id: test_vpc_id, description: anything)
     end
 
-    it 'adds the ingress rule for SSH' do
-      create
-      expect(security_group).to have_received(:authorize_ingress).with(
-        ip_permissions: [{ip_protocol: "tcp", from_port: 22, to_port: 22, ip_ranges: [{cidr_ip: "0.0.0.0/0"}]}]
-      )
+    context 'given allow_any_ip: true' do
+      let(:allow_any_ip) { true }
+
+      it 'adds the ingress rule for SSH, allowing any IP address' do
+        create
+        expect(security_group).to have_received(:authorize_ingress).with(
+          ip_permissions: [{ip_protocol: "tcp", from_port: 22, to_port: 22, ip_ranges: [{cidr_ip: "0.0.0.0/0"}]}]
+        )
+      end
+    end
+
+    context 'given allow_any_ip: false' do
+      let(:allow_any_ip) { false }
+
+      it 'adds the ingress rule for SSH, allowing only IP addresses from the subnet CIDR block' do
+        create
+        expect(security_group).to have_received(:authorize_ingress).with(
+          ip_permissions: [{ip_protocol: "tcp", from_port: 22, to_port: 22, ip_ranges: [{cidr_ip: test_cidr_block}]}]
+        )
+      end
     end
 
     it 'loads the subnet to find the vpc id' do

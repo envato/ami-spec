@@ -1,8 +1,7 @@
-require 'spec_helper'
 require 'base64'
 require 'tempfile'
 
-describe AmiSpec::AwsInstance do
+RSpec.describe AmiSpec::AwsInstance do
   let(:role) { 'web_server' }
   let(:sec_group_id) { nil }
   let(:region) { nil }

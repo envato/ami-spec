@@ -1,6 +1,4 @@
-require 'spec_helper'
-
-describe AmiSpec::WaitForSSH do
+RSpec.describe AmiSpec::WaitForSSH do
   describe '#wait' do
     let(:retries) { 30 }
     subject { described_class.wait('127.0.0.1', 'ubuntu', 'key.pem', 30) }

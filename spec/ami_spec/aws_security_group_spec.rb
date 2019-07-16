@@ -1,6 +1,4 @@
-require 'spec_helper'
-
-describe AmiSpec::AwsSecurityGroup do
+RSpec.describe AmiSpec::AwsSecurityGroup do
   subject(:aws_security_group) do
     described_class.create(
       ec2: ec2,

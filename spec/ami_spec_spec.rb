@@ -30,8 +30,10 @@ RSpec.describe AmiSpec do
 
 
   describe '#invoke' do
-    it 'raises a system exit with no arguments' do
-      expect{ described_class.invoke }.to raise_error(SystemExit)
+    context 'given no arguments' do
+      it 'prints to STDERR and raises a system exit' do
+        expect{ described_class.invoke }.to output.to_stderr.and raise_error(SystemExit)
+      end
     end
   end
 

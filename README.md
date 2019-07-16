@@ -45,7 +45,8 @@ Options:
   -i, --aws-instance-type=<s>           The ec2 instance type, defaults to t2.micro (default:
                                         t2.micro)
   -c, --aws-security-groups=<s>         Security groups to associate to the launched instances. May be
-                                        specified multiple times
+                                        specified multiple times. If not provided a temporary security
+                                        group will be generated in AWS
   -p, --aws-public-ip                   Launch instances with a public IP
   -t, --ssh-retries=<i>                 The number of times we should try sshing to the ec2 instance
                                         before giving up. Defaults to 30 (default: 30)

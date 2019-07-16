@@ -6,9 +6,9 @@ describe AmiSpec::AwsInstance do
   let(:role) { 'web_server' }
   let(:sec_group_id) { nil }
   let(:region) { nil }
-  let(:client_double) { instance_double(Aws::EC2::Client) }
-  let(:new_ec2_double) { instance_double(Aws::EC2::Types::Instance) }
-  let(:ec2_double) { instance_double(Aws::EC2::Instance) }
+  let(:client_double) { instance_spy(Aws::EC2::Client) }
+  let(:new_ec2_double) { instance_spy(Aws::EC2::Types::Instance) }
+  let(:ec2_double) { instance_spy(Aws::EC2::Instance) }
   let(:tags) { {} }
   let(:iam_instance_profile_arn) { nil }
   let(:user_data_file) { nil }
@@ -34,9 +34,6 @@ describe AmiSpec::AwsInstance do
     allow(client_double).to receive(:run_instances).and_return(double(instances: [new_ec2_double]))
     allow(ec2_double).to receive(:create_tags).and_return(double)
     allow(Aws::EC2::Instance).to receive(:new).and_return(ec2_double)
-    allow(new_ec2_double).to receive(:instance_id)
-    allow(ec2_double).to receive(:instance_id)
-    allow(ec2_double).to receive(:wait_until_running)
   end
 
   describe '#start' do
@@ -139,4 +136,19 @@ describe AmiSpec::AwsInstance do
     end
   end
 
+  describe '#terminate' do
+    subject(:terminate) { aws_instance.terminate }
+
+    before { aws_instance.start }
+
+    it 'instructs the EC2 instance to terminate' do
+      terminate
+      expect(ec2_double).to have_received(:terminate)
+    end
+
+    it 'waits for the EC2 instance to terminate' do
+      terminate
+      expect(ec2_double).to have_received(:wait_until_terminated)
+    end
+  end
 end

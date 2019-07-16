@@ -26,7 +26,7 @@ module AmiSpec
       @iam_instance_profile_arn = options.fetch(:iam_instance_profile_arn, nil)
     end
 
-    def_delegators :@instance, :instance_id, :tags, :terminate, :private_ip_address, :public_ip_address
+    def_delegators :@instance, :instance_id, :tags, :private_ip_address, :public_ip_address
 
     def start
       client = Aws::EC2::Client.new(client_options)
@@ -35,6 +35,11 @@ module AmiSpec
       @instance = Aws::EC2::Instance.new(placeholder_instance.instance_id, client_options)
       @instance.wait_until_running
       tag_instance
+    end
+
+    def terminate
+      @instance.terminate
+      @instance.wait_until_terminated
     end
 
     private

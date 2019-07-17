@@ -1,6 +1,4 @@
-require 'spec_helper'
-
-describe AmiSpec::WaitForRC, integration: true do
+RSpec.describe AmiSpec::WaitForRC, integration: true do
   let(:private_key_file) { File.expand_path(File.join('..', 'containers', 'ami-spec'), __FILE__) }
   context 'xenial server' do
     let(:ssh_port) { 1122 }

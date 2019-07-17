@@ -1,6 +1,4 @@
-require 'spec_helper'
-
-describe AmiSpec do
+RSpec.describe AmiSpec do
   let(:amis) { {'web_server' => 'ami-1234abcd', 'db_server' => 'ami-1234abcd'} }
   let(:ec2) { instance_spy(Aws::EC2::Resource) }
   let(:ec2_double) { instance_double(AmiSpec::AwsInstance) }
@@ -32,8 +30,10 @@ describe AmiSpec do
 
 
   describe '#invoke' do
-    it 'raises a system exit with no arguments' do
-      expect{ described_class.invoke }.to raise_error(SystemExit)
+    context 'given no arguments' do
+      it 'prints to STDERR and raises a system exit' do
+        expect{ described_class.invoke }.to output.to_stderr.and raise_error(SystemExit)
+      end
     end
   end
 

@@ -1,3 +1,4 @@
 Gemfile.lock
 *.gem
 .ruby-version
+spec/examples.txt

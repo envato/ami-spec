@@ -1,6 +1,4 @@
-require 'spec_helper'
-
-describe AmiSpec::AwsKeyPair do
+RSpec.describe AmiSpec::AwsKeyPair do
   subject(:aws_key_pair) { described_class.create(ec2: ec2, logger: logger) }
 
   let(:ec2) { instance_spy(Aws::EC2::Resource, create_key_pair: key_pair) }

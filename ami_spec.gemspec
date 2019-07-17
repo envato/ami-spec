@@ -12,9 +12,10 @@ Gem::Specification.new do |gem|
   gem.summary       = gem.description
   gem.homepage      = 'https://github.com/envato/ami-spec'
 
-  gem.files         = `git ls-files`.split($/)
+  gem.files         = `git ls-files -z`.split("\x0").select do |f|
+    f.match(%r{^(?:README|LICENSE|CHANGELOG|lib/|bin/)})
+  end
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
-  gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.require_paths = ['lib']
 
   gem.add_dependency 'aws-sdk-ec2', '~> 1'

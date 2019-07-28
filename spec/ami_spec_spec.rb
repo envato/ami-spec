@@ -148,7 +148,8 @@ RSpec.describe AmiSpec do
       it 'launches the EC2 instances in the provided subnet' do
         subject
         expect(AmiSpec::AwsInstance).to have_received(:start).twice.with(
-          an_object_having_attributes(subnet_id: subnet_id))
+          an_instance_of(AmiSpec::AwsInstanceOptions)
+            .and(having_attributes(subnet_id: subnet_id)))
       end
     end
 
@@ -165,7 +166,8 @@ RSpec.describe AmiSpec do
         it 'launches the EC2 instances in the default VPC subnet' do
           subject
           expect(AmiSpec::AwsInstance).to have_received(:start).twice.with(
-            an_object_having_attributes(subnet_id: default_subnet_id))
+            an_instance_of(AmiSpec::AwsInstanceOptions)
+              .and(having_attributes(subnet_id: default_subnet_id)))
         end
 
         it 'logs which subnet is being used' do

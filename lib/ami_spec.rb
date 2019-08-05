@@ -1,5 +1,6 @@
 require 'ami_spec/aws_instance'
 require 'ami_spec/aws_instance_options'
+require 'ami_spec/aws_default_vpc'
 require 'ami_spec/aws_key_pair'
 require 'ami_spec/aws_security_group'
 require 'ami_spec/server_spec'
@@ -54,6 +55,13 @@ module AmiSpec
 
     ec2 = Aws::EC2::Resource.new(options[:aws_region] ? {region: options[:aws_region]} : {})
 
+    if options[:subnet_id].nil?
+      default_vpc_subnet = AwsDefaultVpc.find_subnet(ec2: ec2)
+      raise 'No default VPC subnet found. Please specify a subnet id.' if default_vpc_subnet.nil?
+      options[:subnet_id] = default_vpc_subnet.id
+      logger.info("Using subnet #{options[:subnet_id]} from the default VPC")
+    end
+
     unless options[:key_name]
       key_pair = AwsKeyPair.create(ec2: ec2, logger: logger)
       options[:key_name] = key_pair.key_name
@@ -94,7 +102,7 @@ module AmiSpec
   end
 
   def self.stop_instances(instances, debug)
-    instances.each do |instance|
+    instances && instances.each do |instance|
       begin
         if debug
           puts "EC2 instance ##{instance.instance_id} has not been stopped due to debug mode."
@@ -116,7 +124,7 @@ module AmiSpec
       opt :role_ami_file, "A file containing comma separated roles and amis. i.e.\nweb_server,ami-id.",
           type: :string
       opt :specs, "The directory to find ServerSpecs", type: :string, required: true
-      opt :subnet_id, "The subnet to start the instance in", type: :string, required: true
+      opt :subnet_id, "The subnet to start the instance in. If not provided a subnet will be chosen from the default VPC", type: :string
       opt :key_name, "The SSH key name to assign to instances. If not provided a temporary key pair will be generated in AWS",
           type: :string
       opt :key_file, "The SSH private key file associated to the key_name", type: :string

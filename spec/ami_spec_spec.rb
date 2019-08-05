@@ -4,6 +4,7 @@ RSpec.describe AmiSpec do
   let(:ec2_double) { instance_double(AmiSpec::AwsInstance) }
   let(:aws_key_pair) { instance_spy(AmiSpec::AwsKeyPair) }
   let(:aws_security_group) { instance_spy(AmiSpec::AwsSecurityGroup) }
+  let(:logger) { instance_spy(Logger) }
   let(:state) { double(name: 'running') }
   let(:test_result) { true }
   let(:server_spec_double) { double(run: test_result) }
@@ -48,6 +49,7 @@ RSpec.describe AmiSpec do
       allow(ec2_double).to receive(:terminate).and_return(true)
       allow(ec2_double).to receive(:private_ip_address).and_return('127.0.0.1')
       allow_any_instance_of(Object).to receive(:sleep)
+      allow(Logger).to receive(:new).and_return(logger)
     end
 
     context 'successful tests' do
@@ -139,6 +141,61 @@ RSpec.describe AmiSpec do
       it 'does not create a temporary security group' do
         subject
         expect(AmiSpec::AwsSecurityGroup).not_to have_received(:create)
+      end
+    end
+
+    context 'given a subnet id is provided' do
+      it 'launches the EC2 instances in the provided subnet' do
+        subject
+        expect(AmiSpec::AwsInstance).to have_received(:start).twice.with(
+          an_instance_of(AmiSpec::AwsInstanceOptions)
+            .and(having_attributes(subnet_id: subnet_id)))
+      end
+    end
+
+    context 'given a subnet id is not provided' do
+      let(:subnet_id) { nil }
+
+      context 'given a default VPC subnet is found' do
+        let(:default_subnet) { instance_spy(Aws::EC2::Subnet, id: default_subnet_id) }
+        let(:default_subnet_id) { 'subnet-1234' }
+        before do
+          allow(AmiSpec::AwsDefaultVpc).to receive(:find_subnet).and_return(default_subnet)
+        end
+
+        it 'launches the EC2 instances in the default VPC subnet' do
+          subject
+          expect(AmiSpec::AwsInstance).to have_received(:start).twice.with(
+            an_instance_of(AmiSpec::AwsInstanceOptions)
+              .and(having_attributes(subnet_id: default_subnet_id)))
+        end
+
+        it 'logs which subnet is being used' do
+          subject
+          expect(logger).to have_received(:info).with(
+            "Using subnet #{default_subnet_id} from the default VPC"
+          )
+        end
+
+        context 'given a security group id is not provided' do
+          let(:security_groups) { [] }
+
+          it 'creates the temporary security group in the default VPC subnet' do
+            subject
+            expect(AmiSpec::AwsSecurityGroup).to have_received(:create)
+              .with(a_hash_including(subnet_id: default_subnet_id))
+          end
+        end
+      end
+
+      context 'given a default VPC subnet is not found' do
+        before do
+          allow(AmiSpec::AwsDefaultVpc).to receive(:find_subnet).and_return(nil)
+        end
+
+        it 'raises an error, asking for a subnet_id to be provided' do
+          expect { subject }.to raise_error('No default VPC subnet found. Please specify a subnet id.')
+        end
       end
     end
   end

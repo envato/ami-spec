@@ -1,5 +1,9 @@
 # AmiSpec
 
+[![License MIT](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://github.com/envato/ami-spec/blob/master/LICENSE.txt)
+[![Gem Version](https://badge.fury.io/rb/ami_spec.svg)](https://badge.fury.io/rb/ami_spec)
+[![Build Status](https://travis-ci.org/envato/ami-spec.svg?branch=master)](https://travis-ci.org/envato/ami-spec)
+
 Acceptance testing your AMIs.
 
 AmiSpec is a RubyGem used to launch an Amazon Machine Image (AMI) and run ServerSpecs against it. It wraps around the AWS API and ServerSpec to spin up, test and tear down instances.

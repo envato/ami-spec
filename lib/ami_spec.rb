@@ -89,6 +89,7 @@ module AmiSpec
       ip_address = options[:aws_public_ip] ? instance.public_ip_address : instance.private_ip_address
       WaitForSSH.wait(ip_address, options[:ssh_user], options[:key_file], options[:ssh_retries])
       WaitForRC.wait(ip_address, options[:ssh_user], options[:key_file]) if options[:wait_for_rc]
+      WaitForCloudInit.wait(ip_address, options[:ssh_user], options[:key_file]) if option[:wait_for_cloud_init]
 
       server_spec_options = ServerSpecOptions.new(options.merge(instance: instance))
       results << ServerSpec.new(server_spec_options).run
@@ -141,6 +142,7 @@ module AmiSpec
       opt :debug, "Don't terminate instances on exit"
       opt :buildkite, "Output section separators for buildkite"
       opt :wait_for_rc, "Wait for oldschool SystemV scripts to run before conducting tests. Currently only supports Ubuntu with upstart"
+      opt :wait_for_cloud_init, "Wait for Cloud Init to complete before running tests"
       opt :user_data_file, "File path for aws ec2 user data", type: :string, default: nil
       opt :iam_instance_profile_arn, "IAM instance profile to use", type: :string
     end

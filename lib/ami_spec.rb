@@ -7,6 +7,7 @@ require 'ami_spec/server_spec'
 require 'ami_spec/server_spec_options'
 require 'ami_spec/wait_for_ssh'
 require 'ami_spec/wait_for_rc'
+require 'ami_spec/wait_for_cloud_init'
 require 'optimist'
 require 'logger'
 
@@ -89,7 +90,7 @@ module AmiSpec
       ip_address = options[:aws_public_ip] ? instance.public_ip_address : instance.private_ip_address
       WaitForSSH.wait(ip_address, options[:ssh_user], options[:key_file], options[:ssh_retries])
       WaitForRC.wait(ip_address, options[:ssh_user], options[:key_file]) if options[:wait_for_rc]
-      WaitForCloudInit.wait(ip_address, options[:ssh_user], options[:key_file]) if option[:wait_for_cloud_init]
+      WaitForCloudInit.wait(ip_address, options[:ssh_user], options[:key_file]) if options[:wait_for_cloud_init]
 
       server_spec_options = ServerSpecOptions.new(options.merge(instance: instance))
       results << ServerSpec.new(server_spec_options).run

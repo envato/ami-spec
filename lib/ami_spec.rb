@@ -7,6 +7,7 @@ require 'ami_spec/server_spec'
 require 'ami_spec/server_spec_options'
 require 'ami_spec/wait_for_ssh'
 require 'ami_spec/wait_for_rc'
+require 'ami_spec/wait_for_cloud_init'
 require 'optimist'
 require 'logger'
 
@@ -89,6 +90,7 @@ module AmiSpec
       ip_address = options[:aws_public_ip] ? instance.public_ip_address : instance.private_ip_address
       WaitForSSH.wait(ip_address, options[:ssh_user], options[:key_file], options[:ssh_retries])
       WaitForRC.wait(ip_address, options[:ssh_user], options[:key_file]) if options[:wait_for_rc]
+      WaitForCloudInit.wait(ip_address, options[:ssh_user], options[:key_file]) if options[:wait_for_cloud_init]
 
       server_spec_options = ServerSpecOptions.new(options.merge(instance: instance))
       results << ServerSpec.new(server_spec_options).run
@@ -119,30 +121,44 @@ module AmiSpec
 
   def self.invoke
     options = Optimist::options do
-      opt :role, "The role to test, this should map to a directory in the spec folder", type: :string
-      opt :ami, "The ami ID to run tests against", type: :string
-      opt :role_ami_file, "A file containing comma separated roles and amis. i.e.\nweb_server,ami-id.",
-          type: :string
-      opt :specs, "The directory to find ServerSpecs", type: :string, required: true
-      opt :subnet_id, "The subnet to start the instance in. If not provided a subnet will be chosen from the default VPC", type: :string
-      opt :key_name, "The SSH key name to assign to instances. If not provided a temporary key pair will be generated in AWS",
-          type: :string
-      opt :key_file, "The SSH private key file associated to the key_name", type: :string
-      opt :ssh_user, "The user to ssh to the instance as", type: :string, required: true
-      opt :aws_region, "The AWS region, defaults to AWS_DEFAULT_REGION environment variable", type: :string
-      opt :aws_instance_type, "The ec2 instance type, defaults to t2.micro", type: :string, default: 't2.micro'
-      opt :aws_security_groups, "Security groups to associate to the launched instances. May be specified multiple times. If not provided a temporary security group will be generated in AWS",
-          type: :string, default: nil, multi: true
-      opt :allow_any_temporary_security_group, "The temporary security group will allow SSH connections from any IP address (0.0.0.0/0)"
-      opt :aws_public_ip, "Launch instances with a public IP"
-      opt :ssh_retries, "The number of times we should try sshing to the ec2 instance before giving up. Defaults to 30",
-          type: :int, default: 30
-      opt :tags, "Additional tags to add to launched instances in the form of comma separated key=value pairs. i.e. Name=AmiSpec", type: :string, default: ""
-      opt :debug, "Don't terminate instances on exit"
-      opt :buildkite, "Output section separators for buildkite"
-      opt :wait_for_rc, "Wait for oldschool SystemV scripts to run before conducting tests. Currently only supports Ubuntu with upstart"
-      opt :user_data_file, "File path for aws ec2 user data", type: :string, default: nil
-      opt :iam_instance_profile_arn, "IAM instance profile to use", type: :string
+      opt :role,
+          'The role to test, this should map to a directory in the spec folder',
+          type: :string, short: :r
+      opt :ami, 'The ami ID to run tests against', type: :string, short: :a
+      opt :role_ami_file,
+          'A file containing comma separated roles and amis. i.e.
+web_server,ami-id.',
+          type: :string, short: :o
+      opt :specs, 'The directory to find ServerSpecs',
+          type: :string, required: true, short: :s
+      opt :subnet_id,
+          'The subnet to start the instance in. If not provided a subnet will be chosen from the default VPC',
+          type: :string, short: :u
+      opt :key_name, 'The SSH key name to assign to instances. If not provided a temporary key pair will be generated in AWS',
+          type: :string, short: :k
+      opt :key_file, 'The SSH private key file associated to the key_name', type: :string, short: :e
+      opt :ssh_user, 'The user to ssh to the instance as', type: :string, required: true, short: :h
+      opt :aws_region, 'The AWS region, defaults to AWS_DEFAULT_REGION environment variable',
+          type: :string, short: :w
+      opt :aws_instance_type, 'The ec2 instance type, defaults to t2.micro',
+          type: :string, default: 't2.micro', short: :i
+      opt :aws_security_groups,
+          'Security groups to associate to the launched instances. May be specified multiple times. If not provided a temporary security group will be generated in AWS',
+          type: :string, default: nil, multi: true, short: :c
+      opt :allow_any_temporary_security_group, 'The temporary security group will allow SSH connections from any IP address (0.0.0.0/0)',
+          short: :n
+      opt :aws_public_ip, 'Launch instances with a public IP', short: :p
+      opt :ssh_retries, 'The number of times we should try sshing to the ec2 instance before giving up. Defaults to 30',
+          type: :int, default: 30, short: :t
+      opt :tags, 'Additional tags to add to launched instances in the form of comma separated key=value pairs. i.e. Name=AmiSpec',
+          type: :string, default: '', short: :g
+      opt :debug, "Don't terminate instances on exit", short: :d
+      opt :buildkite, 'Output section separators for buildkite', short: :b
+      opt :wait_for_rc, 'Wait for oldschool SystemV scripts to run before conducting tests. Currently only supports Ubuntu with upstart',
+          short: :f
+      opt :wait_for_cloud_init, 'Wait for Cloud Init to complete before running tests'
+      opt :user_data_file, 'File path for aws ec2 user data', type: :string, default: nil, short: :l
+      opt :iam_instance_profile_arn, 'IAM instance profile to use', type: :string, short: :m
     end
 
     if options[:role] && options[:ami]

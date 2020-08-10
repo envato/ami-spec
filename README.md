@@ -52,6 +52,8 @@ Options:
   -c, --aws-security-groups=<s>         Security groups to associate to the launched instances. May be
                                         specified multiple times. If not provided a temporary security
                                         group will be generated in AWS
+  -n, --allow_any_temporary_security_group  The temporary security group will allow SSH connections 
+                                        from any IP address (0.0.0.0/0), otherwise allow the subnet's CIDR block
   -p, --aws-public-ip                   Launch instances with a public IP
   -t, --ssh-retries=<i>                 The number of times we should try sshing to the ec2 instance
                                         before giving up. Defaults to 30 (default: 30)

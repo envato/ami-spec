@@ -9,7 +9,7 @@ module AmiSpec
       while retries < max_retries
         begin
           Net::SSH.start(ip_address, user, keys: [key], :verify_host_key => :never) { |ssh| ssh.exec 'echo boo!' }
-        rescue Errno::ETIMEDOUT, Errno::ECONNREFUSED, Timeout::Error => error
+        rescue Errno::ETIMEDOUT, Errno::ECONNREFUSED, Timeout::Error, Net::SSH::Exception => error
           last_error = error
           sleep 1
         else

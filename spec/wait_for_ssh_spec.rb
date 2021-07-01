@@ -23,7 +23,7 @@ RSpec.describe AmiSpec::WaitForSSH do
       end
 
       it 'returns the last error' do
-        expect(Net::SSH).to receive(:start).and_raise(Errno::ECONNREFUSED, 'some other error')
+        expect(Net::SSH).to receive(:start).and_raise(Net::SSH::ConnectionTimeout, 'some other error')
         expect{subject}.to raise_error(AmiSpec::InstanceConnectionTimeout, /ssh failed/)
       end
 

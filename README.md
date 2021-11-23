@@ -54,7 +54,8 @@ Options:
                                             group will be generated in AWS
   -n, --allow-any-temporary-security-group  The temporary security group will allow SSH connections 
                                             from any IP address (0.0.0.0/0), otherwise allow the subnet's block
-  -p, --aws-public-ip                       Launch instances with a public IP
+  -p, --aws-public-ip                       Launch instances with a public IP and use that IP for SSH
+  -q, --associate-public-ip                 Launch instances with a public IP but don't use that IP for SSH
   -t, --ssh-retries=<i>                     The number of times we should try sshing to the ec2 instance
                                             before giving up. Defaults to 30 (default: 30)
   -g, --tags=<s>                            Additional tags to add to launched instances in the form of

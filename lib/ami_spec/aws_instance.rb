@@ -19,6 +19,7 @@ module AmiSpec
       @key_name = options.fetch(:key_name)
       @instance_type = options.fetch(:aws_instance_type)
       @public_ip = options.fetch(:aws_public_ip)
+      @associate_public_ip = options.fetch(:associate_public_ip)
       @region = options.fetch(:aws_region)
       @security_group_ids = options.fetch(:aws_security_groups)
       @tags = ec2ify_tags(options.fetch(:tags))
@@ -61,7 +62,7 @@ module AmiSpec
         key_name: @key_name,
         network_interfaces: [{
           device_index: 0,
-          associate_public_ip_address: @public_ip,
+          associate_public_ip_address: @public_ip || @associate_public_ip,
           subnet_id: @subnet_id,
         }]
       }

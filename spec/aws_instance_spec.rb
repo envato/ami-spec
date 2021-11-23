@@ -11,6 +11,8 @@ RSpec.describe AmiSpec::AwsInstance do
   let(:tags) { {} }
   let(:iam_instance_profile_arn) { nil }
   let(:user_data_file) { nil }
+  let(:aws_public_ip) { false }
+  let(:associate_public_ip) { false }
 
   subject(:aws_instance) do
     described_class.new(
@@ -19,7 +21,8 @@ RSpec.describe AmiSpec::AwsInstance do
       subnet_id: 'subnet',
       key_name: 'key',
       aws_instance_type: 't2.micro',
-      aws_public_ip: false,
+      aws_public_ip: aws_public_ip,
+      associate_public_ip: associate_public_ip,
       aws_security_groups: sec_group_id,
       aws_region: region,
       tags: tags,
@@ -116,6 +119,42 @@ RSpec.describe AmiSpec::AwsInstance do
       it 'does include iam_instance_profile_arn' do
         expect(client_double).to receive(:run_instances).with(
             hash_including(:iam_instance_profile =>  { arn: 'my_arn'})
+        )
+        start
+      end
+    end
+
+    context 'with aws_public_ip' do
+      let(:aws_public_ip) { true }
+      it 'sets associate public IP' do
+        expect(client_double).to receive(:run_instances).with(
+          hash_including(
+            network_interfaces: [
+              {
+                device_index: 0,
+                associate_public_ip_address: true,
+                subnet_id: 'subnet'
+              }
+            ]
+          )
+        )
+        start
+      end
+    end
+
+    context 'with associate_public_ip' do
+      let(:associate_public_ip) { true }
+      it 'sets associate public IP' do
+        expect(client_double).to receive(:run_instances).with(
+          hash_including(
+            network_interfaces: [
+              {
+                device_index: 0,
+                associate_public_ip_address: true,
+                subnet_id: 'subnet'
+              }
+            ]
+          )
         )
         start
       end

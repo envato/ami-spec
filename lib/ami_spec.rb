@@ -148,6 +148,7 @@ web_server,ami-id.',
       opt :allow_any_temporary_security_group, 'The temporary security group will allow SSH connections from any IP address (0.0.0.0/0)',
           short: :n
       opt :aws_public_ip, 'Launch instances with a public IP', short: :p
+      opt :associate_public_ip, "Launch instances with a public IP but don't use that IP for SSH", short: :q
       opt :ssh_retries, 'The number of times we should try sshing to the ec2 instance before giving up. Defaults to 30',
           type: :int, default: 30, short: :t
       opt :tags, 'Additional tags to add to launched instances in the form of comma separated key=value pairs. i.e. Name=AmiSpec',

@@ -38,7 +38,9 @@ module AmiSpec
   # aws_instance_type::
   #   AWS ec2 instance type
   # aws_public_ip::
-  #   Should the instances get a public IP address
+  #   Should the instances get a public IP address and use that IP for SSH
+  # associate_public_ip::
+  #   Launch instances with a public IP but don't use that IP for SSH
   # ssh_user::
   #   The username to SSH to the AMI with.
   # ssh_retries::
@@ -147,7 +149,7 @@ web_server,ami-id.',
           type: :string, default: nil, multi: true, short: :c
       opt :allow_any_temporary_security_group, 'The temporary security group will allow SSH connections from any IP address (0.0.0.0/0)',
           short: :n
-      opt :aws_public_ip, 'Launch instances with a public IP', short: :p
+      opt :aws_public_ip, 'Launch instances with a public IP and use that IP for SSH', short: :p
       opt :associate_public_ip, "Launch instances with a public IP but don't use that IP for SSH", short: :q
       opt :ssh_retries, 'The number of times we should try sshing to the ec2 instance before giving up. Defaults to 30',
           type: :int, default: 30, short: :t

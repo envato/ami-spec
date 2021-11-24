@@ -38,7 +38,9 @@ module AmiSpec
   # aws_instance_type::
   #   AWS ec2 instance type
   # aws_public_ip::
-  #   Should the instances get a public IP address
+  #   Should the instances get a public IP address and use that IP for SSH
+  # associate_public_ip::
+  #   Launch instances with a public IP but don't use that IP for SSH
   # ssh_user::
   #   The username to SSH to the AMI with.
   # ssh_retries::

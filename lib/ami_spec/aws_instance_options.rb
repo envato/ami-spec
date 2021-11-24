@@ -12,6 +12,7 @@ module AmiSpec
     property :aws_public_ip
     property :aws_region
     property :aws_security_groups
+    property :associate_public_ip
     property :tags
     property :user_data_file
     property :iam_instance_profile_arn

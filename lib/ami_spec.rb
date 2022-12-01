@@ -83,17 +83,25 @@ module AmiSpec
 
     instances = []
     options[:amis].each_pair do |role, ami|
-      aws_instance_options = AwsInstanceOptions.new(options.merge(role: role, ami: ami))
+      aws_instance_options = AwsInstanceOptions.new(options.merge(role: role, ami: ami, logger: logger))
       instances << AwsInstance.start(aws_instance_options)
     end
 
     results = []
     instances.each do |instance|
       ip_address = options[:aws_public_ip] ? instance.public_ip_address : instance.private_ip_address
+      logger.info("Waiting for SSH…")
       WaitForSSH.wait(ip_address, options[:ssh_user], options[:key_file], options[:ssh_retries])
-      WaitForRC.wait(ip_address, options[:ssh_user], options[:key_file]) if options[:wait_for_rc]
-      WaitForCloudInit.wait(ip_address, options[:ssh_user], options[:key_file]) if options[:wait_for_cloud_init]
+      if options[:wait_for_rc]
+        logger.info("Waiting for RC…")
+        WaitForRC.wait(ip_address, options[:ssh_user], options[:key_file])
+      end
+      if options[:wait_for_cloud_init]
+        logger.info("Waiting for cloud init…")
+        WaitForCloudInit.wait(ip_address, options[:ssh_user], options[:key_file])
+      end
 
+      logger.info("Running serverspec…")
       server_spec_options = ServerSpecOptions.new(options.merge(instance: instance))
       results << ServerSpec.new(server_spec_options).run
      end

@@ -16,5 +16,6 @@ module AmiSpec
     property :tags
     property :user_data_file
     property :iam_instance_profile_arn
+    property :logger
   end
 end

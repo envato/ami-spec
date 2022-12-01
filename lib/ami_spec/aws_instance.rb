@@ -25,22 +25,28 @@ module AmiSpec
       @tags = ec2ify_tags(options.fetch(:tags))
       @user_data_file = options.fetch(:user_data_file, nil)
       @iam_instance_profile_arn = options.fetch(:iam_instance_profile_arn, nil)
+      @logger = options.fetch(:logger)
     end
 
     def_delegators :@instance, :instance_id, :tags, :private_ip_address, :public_ip_address
 
     def start
+      @logger.info "Creating AWS EC2 instance for #{@ami}"
       client = Aws::EC2::Client.new(client_options)
       placeholder_instance = client.run_instances(instances_options).instances.first
 
       @instance = Aws::EC2::Instance.new(placeholder_instance.instance_id, client_options)
+      @logger.info "Waiting for AWS EC2 instance to start: #{@instance.id}"
       @instance.wait_until_running
       tag_instance
+      @logger.info "AWS EC2 instance started: #{@instance.id}"
     end
 
     def terminate
+      @logger.info "Terminating AWS EC2 instance: #{@instance.id}"
       @instance.terminate
       @instance.wait_until_terminated
+      @logger.info "AWS EC2 instance terminated: #{@instance.id}"
     end
 
     private

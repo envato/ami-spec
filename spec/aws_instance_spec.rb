@@ -13,6 +13,7 @@ RSpec.describe AmiSpec::AwsInstance do
   let(:user_data_file) { nil }
   let(:aws_public_ip) { false }
   let(:associate_public_ip) { false }
+  let(:logger) { instance_spy(Logger) }
 
   subject(:aws_instance) do
     described_class.new(
@@ -27,7 +28,8 @@ RSpec.describe AmiSpec::AwsInstance do
       aws_region: region,
       tags: tags,
       user_data_file: user_data_file,
-      iam_instance_profile_arn: iam_instance_profile_arn
+      iam_instance_profile_arn: iam_instance_profile_arn,
+      logger: logger,
     )
   end
 
@@ -172,6 +174,13 @@ RSpec.describe AmiSpec::AwsInstance do
       start
       aws_instance.instance_id
     end
+
+    it 'logs creation' do
+      start
+      expect(logger).to have_received(:info).with /^Creating AWS EC2 instance for ami/
+      expect(logger).to have_received(:info).with /^Waiting for AWS EC2 instance to start/
+      expect(logger).to have_received(:info).with /^AWS EC2 instance started/
+    end
   end
 
   describe '#terminate' do
@@ -187,6 +196,12 @@ RSpec.describe AmiSpec::AwsInstance do
     it 'waits for the EC2 instance to terminate' do
       terminate
       expect(ec2_double).to have_received(:wait_until_terminated)
+    end
+
+    it 'logs termination' do
+      terminate
+      expect(logger).to have_received(:info).with /^Terminating AWS EC2 instance/
+      expect(logger).to have_received(:info).with /^AWS EC2 instance terminated/
     end
   end
 end

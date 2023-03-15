@@ -11,7 +11,5 @@ module AmiSpec
     property :specs
     property :ssh_user
     property :buildkite
-    property :user_data_file
-    property :iam_instance_profile_arn
   end
 end

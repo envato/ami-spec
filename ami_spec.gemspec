@@ -23,7 +23,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'specinfra', '>= 2.45'
   gem.add_dependency 'optimist', '~> 3'
   gem.add_dependency 'hashie'
-  gem.add_dependency 'net-ssh', '~> 5'
+  gem.add_dependency 'net-ssh', '>= 5'
 
   gem.required_ruby_version = '>= 2.2.6'
 end

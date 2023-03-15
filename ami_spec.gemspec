@@ -19,7 +19,6 @@ Gem::Specification.new do |gem|
   gem.require_paths = ['lib']
 
   gem.add_dependency 'aws-sdk-ec2', '~> 1'
-  gem.add_development_dependency 'rake'
   gem.add_dependency 'serverspec', '~> 2'
   gem.add_dependency 'specinfra', '>= 2.45'
   gem.add_dependency 'optimist', '~> 3'
